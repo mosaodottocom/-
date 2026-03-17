@@ -78,6 +78,10 @@ input[type="range"]{width:100%;accent-color:var(--pri);margin:0;cursor:pointer;}
 .custom-options.open{display:block}
 .custom-option{padding:10px;cursor:pointer;font-size:16px;border-bottom:1px solid var(--bd);transition:.1s;user-select:none;-webkit-user-select:none;-webkit-user-drag:none;}
 .custom-option:hover{background:var(--pri);color:#fff}
+.simple-mode .adv-only{display:none!important}
+.mode-toggle-btn{padding:5px 12px;font-size:11px;font-weight:700;border:1px solid var(--bd);border-radius:6px;background:var(--bg);color:var(--muted);cursor:pointer;transition:.2s;user-select:none;}
+.mode-toggle-btn.simple{border-color:var(--sec);color:var(--sec);background:rgba(255,204,0,.1);}
+.mode-toggle-btn.advanced{border-color:var(--pri);color:var(--pri);background:rgba(255,51,85,.1);}
 .custom-option:last-child{border-bottom:none}
 .preview-area{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;background:var(--bg);overflow:auto;transition:.3s}
 .preview-header{display:flex;justify-content:space-between;align-items:flex-end;width:100%;max-width:1100px;margin-bottom:16px;gap:10px;flex-wrap:wrap}
@@ -156,7 +160,7 @@ body:has(.fullscreen-mode) .sidebar{display:none}
         <button type="button" class="preset-btn" id="headAddFill">＋ 塗り</button>
     </div>
     <div class="header-actions">
-        <button type="button" class="preset-btn" id="helpBtn" title="使い方を見る">📖 使い方</button>
+<button type="button" class="preset-btn" id="helpBtn" title="使い方を見る">📖 使い方</button>
         <button type="button" class="preset-btn" id="resetAllBtn" title="すべて初期化">🗑️ リセット</button>
         <button type="button" class="preset-btn" id="undoBtn" title="元に戻す">↩️ </button>
         <button type="button" class="preset-btn" id="redoBtn" title="やり直す">↪️ </button>
@@ -365,6 +369,7 @@ function drawFill(c){
 
 let S = { rows: [], chars:[], shapes:[], bgDarken:0, speedLine:false, slColor:'#ffffff', slCount:150, slAlpha:50, slWidth:3, slCenterX:640, slCenterY:360, vignette:false };
 let cv,ctx,drag=null,snapX=null,snapY=null,renderPending=false,slCanvas=null,slParams='';
+let simpleMode=localStorage.getItem('simpleMode')!=='false';
 
 function requestRender(){if(!renderPending){renderPending=true;requestAnimationFrame(()=>{if(ctx)render();renderPending=false})}}
 function drawSpeedLines(){
@@ -763,19 +768,18 @@ function openStyleModal(rowId) {
 function saveUserStyles(){ localStorage.setItem('my_thumb_styles', JSON.stringify(userStyles)); }
 
 function generateFontCustomSelect(rowId, selectedFont){
-    const selectedLabel=availableFonts.find(f=>f.name===selectedFont)?.label||'Noto Sans JP';
-    let html=`<div class="custom-select" data-id="${rowId}"><div class="custom-select-trigger" style="font-family:${selectedFont}"><span>${selectedLabel}</span></div><div class="custom-options">`;
-    
+    let html=`<div class="custom-select" data-id="${rowId}"><div class="custom-select-trigger" style="font-family:${selectedFont}"><span>サムネ工房</span></div><div class="custom-options">`;
+
     let sorted = [...availableFonts].sort((a,b)=>{
         let aF = favFonts.includes(a.name)?1:0;
         let bF = favFonts.includes(b.name)?1:0;
-        return bF - aF; 
+        return bF - aF;
     });
 
     sorted.forEach(f=>{
         let isF = favFonts.includes(f.name);
-        html+=`<div class="custom-option" data-val="${f.name}" style="font-family:${f.name}; display:flex; justify-content:space-between; align-items:center;">
-            <span>${f.label}</span>
+        html+=`<div class="custom-option" data-val="${f.name}" style="display:flex; justify-content:space-between; align-items:center;">
+            <div><div style="font-family:${f.name};font-size:18px;">サムネ工房</div><div style="font-size:10px;color:var(--muted);font-family:'Noto Sans JP',sans-serif;margin-top:2px;">${f.label}</div></div>
             <span class="fav-star" data-font="${f.name}" style="color:${isF?'var(--sec)':'var(--muted)'}; font-size:18px; cursor:pointer;" title="お気に入り登録">${isF?'★':'☆'}</span>
         </div>`;
     });
@@ -815,9 +819,11 @@ function buildSidebar(){
     const bgCount = S.chars.filter(c=>c.layerType==='bg'||c.layerType==='fill').length;
 
     let htmlBlocks = [];
-    htmlBlocks.push(`<div id="palZone" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;padding:6px 4px 8px;margin-bottom:8px;border-bottom:1px solid var(--bd);">
-        <span style="font-size:10px;color:var(--muted);font-weight:700;flex-shrink:0;" title="カラーパレット — 色を選んで＋で保存、スウォッチをクリックで適用">🎨</span>
-        ${savedPalette.map((c,idx)=>`<span class="pal-swatch" data-pal-idx="${idx}" title="${c}" style="width:18px;height:18px;border-radius:3px;background:${c};border:1px solid rgba(255,255,255,.15);cursor:pointer;display:inline-block;flex-shrink:0;"></span>`).join('')}
+    htmlBlocks.push(`<div id="palZone" style="display:flex;align-items:center;gap:4px;padding:6px 4px 8px;margin-bottom:8px;border-bottom:1px solid var(--bd);">
+        <button type="button" class="mode-toggle-btn ${simpleMode?'simple':'advanced'}" data-simple-toggle="true" style="flex-shrink:0;">${simpleMode?'🔰 かんたん':'⚙️ 詳細'}</button>
+        <div style="display:flex;align-items:center;gap:3px;flex:1;overflow:hidden;">
+            ${savedPalette.map((c,idx)=>`<span class="pal-swatch" data-pal-idx="${idx}" title="${c}" style="width:18px;height:18px;border-radius:3px;background:${c};border:1px solid rgba(255,255,255,.15);cursor:pointer;display:inline-block;flex-shrink:0;"></span>`).join('')}
+        </div>
         <button type="button" class="btn-sm" id="palAddBtn" title="現在フォーカス中の色をパレットに追加" style="padding:1px 6px;font-size:13px;flex-shrink:0;">＋</button>
     </div>`);
     htmlBlocks.push(`
@@ -858,9 +864,9 @@ function buildSidebar(){
                     <div class="row text-input-row"><div class="text-field-wrap"><label>左テキスト</label><input type="text" class="title-sync" data-pfx="t" data-id="${i}" data-key="textL" value="${esc(item.textL)}"></div><div class="text-color-wrap"><label>色</label><div class="color-ctrls"><input type="color" data-pfx="t" data-id="${i}" data-key="colorL" value="${item.colorL}"><input type="color" data-pfx="t" data-id="${i}" data-key="colorL2" value="${item.colorL2}"><button type="button" class="tgl ${item.gradL?'on':''}" data-pfx="t" data-id="${i}" data-toggle="gradL">グラデ</button></div></div></div>
                     <div class="row text-input-row" style="margin-top:8px"><div class="text-field-wrap"><label>中央テキスト</label><input type="text" class="title-sync" data-pfx="t" data-id="${i}" data-key="textC" value="${esc(item.textC||'')}"></div><div class="text-color-wrap"><label>色</label><div class="color-ctrls"><input type="color" data-pfx="t" data-id="${i}" data-key="colorC" value="${item.colorC||'#00ccff'}"><input type="color" data-pfx="t" data-id="${i}" data-key="colorC2" value="${item.colorC2||'#0055cc'}"><button type="button" class="tgl ${item.gradC?'on':''}" data-pfx="t" data-id="${i}" data-toggle="gradC">グラデ</button></div></div></div>
                     <div class="row text-input-row" style="margin-top:8px"><div class="text-field-wrap"><label>右テキスト</label><input type="text" class="title-sync" data-pfx="t" data-id="${i}" data-key="textR" value="${esc(item.textR)}"></div><div class="text-color-wrap"><label>色</label><div class="color-ctrls"><input type="color" data-pfx="t" data-id="${i}" data-key="colorR" value="${item.colorR}"><input type="color" data-pfx="t" data-id="${i}" data-key="colorR2" value="${item.colorR2}"><button type="button" class="tgl ${item.gradR?'on':''}" data-pfx="t" data-id="${i}" data-toggle="gradR">グラデ</button></div></div></div>
-                    <div class="row" style="margin-top:8px"><div style="flex:1"><label>エフェクト</label><select data-pfx="t" data-id="${i}" data-key="effect"><option value="none" ${item.effect==='none'?'selected':''}>なし</option><option value="neon" ${item.effect==='neon'?'selected':''}>ネオン発光</option><option value="screen" ${item.effect==='screen'?'selected':''}>スクリーン</option><option value="difference" ${item.effect==='difference'?'selected':''}>差の絶対値</option></select></div><div style="flex:1;display:flex;align-items:flex-end;"><button type="button" class="tgl ${item.vertical?'on':''}" data-pfx="t" data-id="${i}" data-toggle="vertical" style="width:100%;height:32px;margin-bottom:2px;">⬇️ 縦書き</button></div></div>
-                    <div class="row" style="margin-top:6px; border:1px dashed var(--bd); padding:4px; border-radius:6px;"><label class="add-zone" style="flex:1; padding:4px; font-size:10px; margin:0; position:relative;">🎨 画像で文字を塗りつぶす<input type="file" accept="image/*" data-pfx="t" data-id="${i}" data-texture="true" style="display:none;"></label>${item.textureSrc ? `<button type="button" class="btn-sm danger" data-pfx="t" data-id="${i}" data-cleartxtr="true" style="margin-left:4px;">解除</button>` : ''}</div>
-                    ${item.textureSrc ? `<div style="margin-top:6px;border:1px solid var(--bd);border-radius:6px;background:rgba(0,0,0,.15);overflow:hidden;">
+                    <div class="row adv-only" style="margin-top:8px"><div style="flex:1"><label>エフェクト</label><select data-pfx="t" data-id="${i}" data-key="effect"><option value="none" ${item.effect==='none'?'selected':''}>なし</option><option value="neon" ${item.effect==='neon'?'selected':''}>ネオン発光</option><option value="screen" ${item.effect==='screen'?'selected':''}>スクリーン</option><option value="difference" ${item.effect==='difference'?'selected':''}>差の絶対値</option></select></div><div style="flex:1;display:flex;align-items:flex-end;"><button type="button" class="tgl ${item.vertical?'on':''}" data-pfx="t" data-id="${i}" data-toggle="vertical" style="width:100%;height:32px;margin-bottom:2px;">⬇️ 縦書き</button></div></div>
+                    <div class="row adv-only" style="margin-top:6px; border:1px dashed var(--bd); padding:4px; border-radius:6px;"><label class="add-zone" style="flex:1; padding:4px; font-size:10px; margin:0; position:relative;">🎨 画像で文字を塗りつぶす<input type="file" accept="image/*" data-pfx="t" data-id="${i}" data-texture="true" style="display:none;"></label>${item.textureSrc ? `<button type="button" class="btn-sm danger" data-pfx="t" data-id="${i}" data-cleartxtr="true" style="margin-left:4px;">解除</button>` : ''}</div>
+                    ${item.textureSrc ? `<div class="adv-only" style="margin-top:6px;border:1px solid var(--bd);border-radius:6px;background:rgba(0,0,0,.15);overflow:hidden;">
                         <div style="padding:6px 10px;font-size:11px;font-weight:700;color:var(--muted);background:rgba(0,0,0,.2);">🖼️ テクスチャ調整</div>
                         <div style="padding:8px;display:flex;flex-direction:column;gap:6px;">
                             <div class="row">
@@ -928,7 +934,7 @@ function buildSidebar(){
                     <div class="pos-row"><button type="button" class="c-btn" data-center="y" data-pfx="t" data-id="${i}" title="縦中央に配置">中央揃え</button><label>Y</label><input type="range" data-pfx="t" data-id="${i}" data-key="y" data-type="num" min="-100" max="820" step="1" value="${Math.round(item.y)}" style="flex:1;"><span class="val-badge" id="val_t_${i}_y">${Math.round(item.y)}</span></div>
                 </div>
                 <div class="row" style="margin-top:6px">
-                    <div style="display:flex;align-items:center;gap:4px;flex:1"><label class="drag-val" data-pfx="t" data-id="${i}" data-key="angle" style="margin:0;white-space:nowrap;cursor:ew-resize;" title="左右にドラッグして値を変えられます">↔ 傾き</label><input type="range" data-pfx="t" data-id="${i}" data-key="angle" data-type="num" min="-15" max="15" step="1" value="${item.angle}"><span class="val-badge" id="val_t_${i}_angle">${item.angle}°</span></div>
+                    <div class="adv-only" style="display:flex;align-items:center;gap:4px;flex:1"><label class="drag-val" data-pfx="t" data-id="${i}" data-key="angle" style="margin:0;white-space:nowrap;cursor:ew-resize;" title="左右にドラッグして値を変えられます">↔ 傾き</label><input type="range" data-pfx="t" data-id="${i}" data-key="angle" data-type="num" min="-15" max="15" step="1" value="${item.angle}"><span class="val-badge" id="val_t_${i}_angle">${item.angle}°</span></div>
                     <div style="display:flex;align-items:center;gap:4px;flex:1"><label class="drag-val" data-pfx="t" data-id="${i}" data-key="spacing" style="margin:0;white-space:nowrap;cursor:ew-resize;" title="左右にドラッグして値を変えられます">↔ 字間</label><input type="range" data-pfx="t" data-id="${i}" data-key="spacing" data-type="num" min="-10" max="10" step="1" value="${item.spacing}"><span class="val-badge" id="val_t_${i}_spacing">${item.spacing}px</span></div>
                 </div>
                 <div class="ctrl-row" style="margin-top:8px;">
@@ -956,22 +962,22 @@ function buildSidebar(){
                     <div style="display:flex;align-items:center;gap:4px;flex:1"><label class="drag-val" data-pfx="s" data-id="${i}" data-key="h" style="margin:0;white-space:nowrap;cursor:ew-resize;" title="左右にドラッグして値を変えられます">↔ 高さ</label><input type="range" data-pfx="s" data-id="${i}" data-key="h" data-type="num" min="10" max="2000" step="1" value="${Math.round(item.h)}" style="flex:1"><span class="val-badge" id="val_s_${i}_h">${Math.round(item.h)}</span></div>
                 </div>
                 <div class="row" style="margin-top:6px">
-                    <div style="display:flex;align-items:center;gap:4px;flex:1"><label class="drag-val" data-pfx="s" data-id="${i}" data-key="angle" style="margin:0;white-space:nowrap;cursor:ew-resize;" title="左右にドラッグして値を変えられます">↔ 傾き</label><input type="range" data-pfx="s" data-id="${i}" data-key="angle" data-type="num" min="-180" max="180" step="1" value="${item.angle}"><span class="val-badge" id="val_s_${i}_angle">${item.angle}°</span></div>
+                    <div class="adv-only" style="display:flex;align-items:center;gap:4px;flex:1"><label class="drag-val" data-pfx="s" data-id="${i}" data-key="angle" style="margin:0;white-space:nowrap;cursor:ew-resize;" title="左右にドラッグして値を変えられます">↔ 傾き</label><input type="range" data-pfx="s" data-id="${i}" data-key="angle" data-type="num" min="-180" max="180" step="1" value="${item.angle}"><span class="val-badge" id="val_s_${i}_angle">${item.angle}°</span></div>
                     <div style="flex:1; display:flex; gap:4px; align-items:center; margin-left:8px;"><label style="margin:0; white-space:nowrap;">不透明度</label><input type="range" data-pfx="s" data-id="${i}" data-key="alpha" data-type="num" min="0" max="100" step="1" value="${item.alpha}" style="flex:1"><span class="val-badge" id="val_s_${i}_alpha">${item.alpha}%</span></div>
                 </div>
-                <div class="row" style="margin-top:6px"><label>ブレンド</label>${bmSelect('s',i,item)}</div>
+                <div class="row adv-only" style="margin-top:6px"><label>ブレンド</label>${bmSelect('s',i,item)}</div>
             </div>`;
         } else if (pfx === 'c') {
             const title = item.name || `画像 ${i}`;
             cardHtml += `<div class="sec-h" draggable="true">${moveUI}<span class="sec-title" title="クリックで開閉">${esc(title)}</span><div style="display:flex;gap:4px;"><button type="button" class="btn-sm" data-vis="c" data-id="${i}" title="表示切替" style="width:30px;font-size:12px;padding:2px 0;color:${item.visible!==false?'var(--text)':'var(--muted)'};">${item.visible!==false?'👁️':'❌'}</button><button type="button" class="btn-sm" data-dup="char" data-id="${i}" title="複製">⧉</button><button type="button" class="btn-sm" data-reset="true" data-pfx="c" data-id="${i}" title="装飾を初期化">🔄</button><button type="button" class="btn-sm danger" data-del="char" data-id="${i}" title="削除">✕</button></div><span class="sec-arrow">▾</span></div>`;
             cardHtml += `<div class="sec-b">
                 <img class="char-mini-thumb" src="${item.img.src}">
-                <div class="ctrl-row" style="margin-bottom:6px;">
+                <div class="ctrl-row adv-only" style="margin-bottom:6px;">
                     <button type="button" class="tgl ${item.outlineOn?'on':''}" data-pfx="c" data-id="${i}" data-toggle="outlineOn">🔲 フチ</button>
                     <label style="margin:0;font-size:10px;display:flex;align-items:center;gap:3px">色<input type="color" data-pfx="c" data-id="${i}" data-key="outlineColor" value="${item.outlineColor}"></label>
                     <div style="flex:1; display:flex; gap:4px; align-items:center; margin-left:8px;"><label class="drag-val" data-pfx="c" data-id="${i}" data-key="outlineWidth" style="margin:0; white-space:nowrap; cursor:ew-resize;" title="左右にドラッグして値を変えられます">↔ 幅</label><input type="range" data-pfx="c" data-id="${i}" data-key="outlineWidth" data-type="num" min="0" max="100" step="1" value="${item.outlineWidth}" style="flex:1"><span class="val-badge" id="val_c_${i}_outlineWidth">${item.outlineWidth}px</span></div>
                 </div>
-                <div class="ctrl-row" style="margin-bottom:6px;">
+                <div class="ctrl-row adv-only" style="margin-bottom:6px;">
                     <button type="button" class="tgl ${item.glowOn?'on':''}" data-pfx="c" data-id="${i}" data-toggle="glowOn">✨ 光</button>
                     <label style="margin:0;font-size:10px;display:flex;align-items:center;gap:3px">色<input type="color" data-pfx="c" data-id="${i}" data-key="glowColor" value="${item.glowColor}"></label>
                     <div style="flex:1; display:flex; gap:4px; align-items:center; margin-left:8px;"><label class="drag-val" data-pfx="c" data-id="${i}" data-key="glowWidth" style="margin:0; white-space:nowrap; cursor:ew-resize;" title="左右にドラッグして値を変えられます">↔ 幅</label><input type="range" data-pfx="c" data-id="${i}" data-key="glowWidth" data-type="num" min="0" max="150" step="1" value="${item.glowWidth}" style="flex:1"><span class="val-badge" id="val_c_${i}_glowWidth">${item.glowWidth}</span></div>
@@ -995,7 +1001,7 @@ function buildSidebar(){
                         </div>
                     </div>
                 </div>
-                <div class="sub-sec ${sub2?'collapsed':''}">
+                <div class="sub-sec adv-only ${sub2?'collapsed':''}">
                     <div class="sub-sec-h">🎨 色調補正 <span class="sec-arrow">▾</span></div>
                     <div class="sub-sec-b">
                         <div class="ctrl-row"><button type="button" class="tgl ${item.filterOn?'on':''}" data-pfx="c" data-id="${i}" data-toggle="filterOn">補正を適用</button></div>
@@ -1019,7 +1025,7 @@ function buildSidebar(){
                 <div class="pos-row" style="margin-top:6px">
                     <div style="display:flex;align-items:center;gap:4px; width:100%"><label class="drag-val" data-pfx="c" data-id="${i}" data-key="sw" style="margin:0;white-space:nowrap;cursor:ew-resize;" title="左右にドラッグして値を変えられます">↔ サイズ</label><input type="range" data-pfx="c" data-id="${i}" data-key="sw" data-type="num" min="10" max="2500" step="1" value="${Math.round(item.w)}" style="flex:1"></div>
                 </div>
-                <div class="row" style="margin-top:6px"><label>ブレンド</label>${bmSelect('c',i,item)}</div>
+                <div class="row adv-only" style="margin-top:6px"><label>ブレンド</label>${bmSelect('c',i,item)}</div>
             </div>`;
         }
 
@@ -1066,7 +1072,7 @@ function buildSidebar(){
                 <div class="row" style="gap:6px;align-items:center;flex-wrap:wrap;"><label>色1</label><input type="color" data-pfx="c" data-id="${i}" data-key="color1" value="${item.color1}"><label>色2</label><input type="color" data-pfx="c" data-id="${i}" data-key="color2" value="${item.color2}"><button type="button" class="tgl ${item.fillType==='gradient'?'on':''}" data-pfx="c" data-id="${i}" data-toggle="fillType">グラデ</button></div>
                 ${item.fillType==='gradient'?`<div class="pos-row" style="margin-top:6px;"><label>角度</label><input type="range" data-pfx="c" data-id="${i}" data-key="gradAngle" data-type="num" min="0" max="360" step="1" value="${item.gradAngle||90}" style="flex:1"><span class="val-badge" id="val_c_${i}_gradAngle">${item.gradAngle||90}°</span></div>`:''}
                 <div class="pos-row" style="margin-top:6px;"><label>不透明度</label><input type="range" data-pfx="c" data-id="${i}" data-key="alpha" data-type="num" min="0" max="100" step="1" value="${item.alpha}" style="flex:1"><span class="val-badge" id="val_c_${i}_alpha">${item.alpha}%</span></div>
-                <div class="row" style="margin-top:6px;"><label>ブレンド</label>${bmSelect('c',i,item)}</div></div>`;
+                <div class="row adv-only" style="margin-top:6px;"><label>ブレンド</label>${bmSelect('c',i,item)}</div></div>`;
                 cardHtml+=`</div>`;htmlBlocks.push(cardHtml);
                 return;
             }
@@ -1094,7 +1100,7 @@ function buildSidebar(){
                         </div>
                     </div>
                 </div>
-                <div style="border:1px solid var(--bd);border-radius:6px;background:rgba(0,0,0,.15);overflow:hidden;">
+                <div class="adv-only" style="border:1px solid var(--bd);border-radius:6px;background:rgba(0,0,0,.15);overflow:hidden;">
                     <div style="padding:8px 10px;font-size:11px;font-weight:700;color:var(--muted);background:rgba(0,0,0,.2);">🎨 色調補正</div>
                     <div style="padding:10px;border-top:1px solid var(--bd);display:flex;flex-direction:column;gap:8px;">
                         <div class="ctrl-row"><button type="button" class="tgl ${item.filterOn?'on':''}" data-pfx="c" data-id="${i}" data-toggle="filterOn">補正を適用</button></div>
@@ -1118,7 +1124,7 @@ function buildSidebar(){
                 <div class="pos-row" style="margin-top:6px">
                     <div style="display:flex;align-items:center;gap:4px; width:100%"><label class="drag-val" data-pfx="c" data-id="${i}" data-key="sw" style="margin:0;white-space:nowrap;cursor:ew-resize;" title="左右にドラッグして値を変えられます">↔ サイズ</label><input type="range" data-pfx="c" data-id="${i}" data-key="sw" data-type="num" min="10" max="2500" step="1" value="${Math.round(item.w)}" style="flex:1"></div>
                 </div>
-                <div class="row" style="margin-top:6px"><label>ブレンド</label>${bmSelect('c',i,item)}</div>
+                <div class="row adv-only" style="margin-top:6px"><label>ブレンド</label>${bmSelect('c',i,item)}</div>
             </div>`;
             cardHtml += `</div>`;
 
@@ -1173,7 +1179,8 @@ function buildSidebar(){
     <div style="margin-top:20px;text-align:center;font-size:10px;color:var(--muted);user-select:none;">© もさおどっとこむ (X:@mosaodottocom)<br>※再配布・自作発言禁止</div>
     `);
     
-    sb.innerHTML=htmlBlocks.join(''); 
+    sb.innerHTML=htmlBlocks.join('');
+    if(simpleMode)sb.classList.add('simple-mode');else sb.classList.remove('simple-mode');
 }
 
 function processLoadedData(data){
@@ -1551,6 +1558,7 @@ function bindGlobalEvents(){
             }
             const txc=e.target.closest('[data-txcenter]');
             if(txc){const r=getItem('t',+txc.dataset.id);if(r){if(txc.dataset.txcenter==='x')r.txOffsetX=0;else r.txOffsetY=0;requestRender();buildSidebar();saveHistory();}}
+            const simpleTgl=e.target.closest('[data-simple-toggle]');if(simpleTgl){simpleMode=!simpleMode;localStorage.setItem('simpleMode',simpleMode);buildSidebar();return;}
             const tgl=e.target.closest('[data-toggle]');if(tgl){const pfx=tgl.dataset.pfx;const r=getItem(pfx,+tgl.dataset.id);if(r){const key=tgl.dataset.toggle;if(key==='fillType'){r.fillType=r.fillType==='gradient'?'solid':'gradient';}else{r[key]=!r[key];}requestRender();buildSidebar();saveHistory();}}
             const tail=e.target.closest('[data-tail]');if(tail){const r=getItem('t',+tail.dataset.id);if(r){r.tail=tail.dataset.tail;requestRender();buildSidebar();saveHistory();}}
             const cTxtr=e.target.closest('button[data-cleartxtr]');if(cTxtr){const r=getItem('t',+cTxtr.dataset.id);if(r){r.texture=null;r.textureSrc=null;buildSidebar();requestRender();saveHistory();}}
@@ -1712,7 +1720,7 @@ function bindGlobalEvents(){
         if (palAdd) {
             if (!_lastColorInput) return;
             const col = _lastColorInput.value;
-            if (!savedPalette.includes(col)) { savedPalette.push(col); if(savedPalette.length>20) savedPalette.shift(); localStorage.setItem('my_thumb_palette', JSON.stringify(savedPalette)); buildSidebar(); }
+            if (!savedPalette.includes(col)) { savedPalette.push(col); if(savedPalette.length>10) savedPalette.shift(); localStorage.setItem('my_thumb_palette', JSON.stringify(savedPalette)); buildSidebar(); }
         }
     });
 
@@ -1773,11 +1781,17 @@ function bindGlobalEvents(){
 }
 function positionDropdown(trigger, opts) {
     const rect = trigger.getBoundingClientRect();
-    opts.style.left = rect.left + 'px';
-    opts.style.width = rect.width + 'px';
+    const sidebar = document.querySelector('.sidebar');
+    const maxRight = sidebar ? sidebar.getBoundingClientRect().right : window.innerWidth - 8;
+    const w = rect.width;
+    let left = rect.left;
+    if (left + w > maxRight) left = maxRight - w;
+    if (left < 8) left = 8;
+    opts.style.left = left + 'px';
+    opts.style.width = w + 'px';
+    opts.style.minWidth = '0';
     const spaceAbove = rect.top - 8;
     const spaceBelow = window.innerHeight - rect.bottom - 8;
-    // 上向き優先：上に180px以上あれば上に開く
     if (spaceAbove >= 180) {
         opts.style.bottom = (window.innerHeight - rect.top + 4) + 'px';
         opts.style.top = '';
