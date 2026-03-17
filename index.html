@@ -22,6 +22,10 @@ main{display:flex;flex:1;overflow:hidden}
 
 #layerList, #bgLayerList { display: block; margin-top: 10px; }
 .sec{border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;background:var(--sf2);margin-bottom:12px; transition: opacity 0.2s;}
+.sec.dragging{opacity:0.35;outline:2px dashed var(--pri);}
+.sec.drag-over{outline:2px solid var(--pri);background:rgba(255,51,85,0.08);}
+.sec-h{cursor:grab;}
+.sec-h:active{cursor:grabbing;}
 
 .order-col { display:flex; flex-direction:column; margin-left:-6px; margin-right:8px; justify-content:center;}
 .order-btn { background:transparent; border:none; color:var(--muted); font-size:11px; cursor:pointer; padding:2px 6px; line-height:1; transition:0.2s;}
@@ -149,6 +153,7 @@ body:has(.fullscreen-mode) .sidebar{display:none}
         <button type="button" class="preset-btn" id="headAddShape">＋ 図形</button>
         <label class="preset-btn" style="margin:0; display:flex; align-items:center; cursor:pointer;">＋ キャラ画像<input type="file" accept="image/*" id="headAddChar" style="display:none;"></label>
         <label class="preset-btn" style="margin:0; display:flex; align-items:center; cursor:pointer;">＋ 背景画像<input type="file" accept="image/*" id="headAddBg" style="display:none;"></label>
+        <button type="button" class="preset-btn" id="headAddFill">＋ 塗り</button>
     </div>
     <div class="header-actions">
         <button type="button" class="preset-btn" id="helpBtn" title="使い方を見る">📖 使い方</button>
@@ -192,16 +197,46 @@ body:has(.fullscreen-mode) .sidebar{display:none}
 
 <div id="helpModal" class="modal-overlay">
     <div class="modal-content" style="width:460px;">
-        <div class="modal-header">📖 使い方・Tips</div>
+        <div class="modal-header">📖 使い方ガイド</div>
         <div class="modal-body" style="font-size:13px; line-height:1.8;">
-            <p><b>🔥 レイヤーの入れ替え（前面/背面）</b><br>
-            各レイヤーの左端にある<b>「▲」「▼」ボタン</b>をクリックすることで、確実に重なり順（前面・背面）を入れ替えられます。</p>
-            <p><b>↔️ 直感的な数値操作（Adobe風）</b><br>
-            「↔ サイズ」や「↔ 幅」など、<b>↔マークがついた文字</b>（またはその横の入力枠）を長押ししたままマウスを左右に動かすと、数値をぐりぐり微調整できます。</p>
-            <p><b>🔤 縦書きの裏ワザ</b><br>
-            縦書きモードの時、「左テキスト」に入力した文字の『真下』に「右テキスト」の文字が続きます。色を分けたい1行の縦書きを作りたい時に便利です！</p>
-            <p><b>🎨 クリッピング（画像で塗りつぶし）</b><br>
-            テキストに画像をアップロードすると、文字の形に画像が切り抜かれます（金箔や宇宙柄などに最適）。この状態のまま「✨スタイル登録」も可能です！</p>
+            <p><b>🖼️ サムネ工房とは</b><br>
+            YouTubeやSNS向けのサムネイル（1280×720px）をブラウザだけで作れる無料ツールです。画像・テキスト・図形を自由に重ねて、<br>様々なデザインを素早く仕上げられます。</p>
+
+            <p><b>📐 レイヤーの基本操作</b><br>
+            追加したレイヤーはサイドバーに一覧表示されます。各レイヤーカードのヘッダーを<b>ドラッグ＆ドロップ</b>するか、<b>▲▼ボタン</b>で重なり順（前面・背面）を変更できます。<br>👁️で表示/非表示、⧉で複製、✕で削除が可能です。</p>
+
+            <p><b>✏️ テキストレイヤー</b><br>
+            1枚のレイヤーに「左・中央・右」の3つのテキストを配置できます。それぞれ色・グラデーションを独立して設定できるほか、<br>フチ（内/外）・ドロップシャドウ・ざぶとん・バナーなど<br>豊富な装飾が使えます。<br>
+            ・<b>【】で囲んだ文字</b>は自動で拡大表示されます<br>　（拡大率は「【】拡大率」で調整）<br>
+            ・<b>縦書きモード</b>では左テキストの真下に右テキストが続くため、<br>2色の縦1行テキストが作れます<br>
+            ・<b>テクスチャ</b>：画像をアップロードすると文字の形に切り抜いて塗りつぶせます</p>
+
+            <p><b>🖼️ 画像レイヤー（キャラ・背景）</b><br>
+            「＋キャラ画像」はサムネ前面に、「＋背景画像」は<br>背景レイヤーゾーンに配置されます。トリミング・足元フェード・<br>色調補正（明るさ・コントラスト・彩度・ぼかし）・フチ・グロー発光など細かい仕上げが可能です。</p>
+
+            <p><b>🎨 塗りレイヤー</b><br>
+            「＋塗り」で背景ゾーンに単色またはグラデーションの塗りつぶし<br>レイヤーを追加できます。<b>グラデ</b>ボタンをONにするとグラデーションになります。ブレンドモードと組み合わせることで多彩な背景表現が可能です。</p>
+
+            <p><b>🔷 図形レイヤー</b><br>
+            四角・丸・矢印の3種類の図形を追加できます。色・フチ・サイズ・<br>角度を自由に設定できます。</p>
+
+            <p><b>⚡ ブレンドモード</b><br>
+            画像・図形・塗りレイヤーにはブレンドモードが設定できます（乗算・スクリーン・オーバーレイなど）。<br>テキストレイヤーのエフェクト欄からも「スクリーン」「差の絶対値」が選択できます。</p>
+
+            <p><b>↔️ 数値のドラッグ操作</b><br>
+            「↔」マークが付いたラベルを<b>左右にドラッグ</b>すると、スライダーを使わずに数値を素早く微調整できます。</p>
+
+            <p><b>🎨 カラーパレット</b><br>
+            サイドバー上部のパレットエリアにカラーを最大20色保存できます。いずれかのカラーピッカーを触った後、<b>＋ボタン</b>でその色を登録。<br>スウォッチをクリックすると最後に触ったカラーピッカーへ即時適用されます。</p>
+
+            <p><b>✨ ワンクリックスタイル</b><br>
+            よく使うテキストのデザインを「スタイル登録」ボタンで<br>保存できます。次回以降はヘッダーの✨ボタンから一発で呼び出して適用できます。</p>
+
+            <p><b>💾 プロジェクト保存・読み込み</b><br>
+            「保存」ボタンでレイヤー構成・テキスト・設定を<br>すべてJSONファイルに書き出せます。「読み込み」で別のPCや<br>別セッションでも続きから再開できます。<br>画像データも埋め込まれるためファイル単体で完結します。</p>
+
+            <p><b>⌨️ キーボードショートカット</b><br>
+            Ctrl+Z でアンドゥ、Ctrl+Y でリドゥ。キャンバス上のレイヤー選択時<br>は設定したキーで複製・削除が可能です（右上の⌨️ボタンから<br>カスタマイズ）。Ctrl+ホイールでキャンバスを拡縮できます。</p>
         </div>
         <div class="modal-footer">
             <button class="dl-btn-main" onclick="document.getElementById('helpModal').classList.remove('active')">閉じる</button>
@@ -245,10 +280,10 @@ body:has(.fullscreen-mode) .sidebar{display:none}
     <div class="modal-content" style="width:300px;text-align:center;">
         <div class="modal-header">⚠️ ご注意</div>
         <div class="modal-body" style="font-size:13px;line-height:1.6;">
-            このツールは<b>PCでの利用</b>を推奨しています。<br>スマートフォンや画面が小さい端末では、レイアウトが崩れたり操作しづらい場合があります。
+            <b>注意:</b> このツールはPCでの利用のみ対応しております。スマートフォンでの利用には対応しておりません。
         </div>
         <div class="modal-footer" style="justify-content:center;">
-            <button class="dl-btn-main" onclick="document.getElementById('mobileWarning').classList.remove('active')">このまま使う</button>
+            <button class="dl-btn-main" onclick="document.getElementById('mobileWarning').classList.remove('active')">理解した</button>
         </div>
     </div>
 </div>
@@ -268,12 +303,13 @@ const SLOT_KEY = 'my_thumb_quickslots';
 
 let defaultStyles = [
     {name: "赤白王道", data: {colorL:"#ff0000",colorL2:"#cc0000",gradL:true,innerC:"#ffffff",innerW:8,outerC:"#000000",outerW:16,shadowOn:true,shadowColor:"#000000",shadowX:6,shadowY:6,effect:"none",vertical:false,textureSrc:null}},
-    {name: "金ピカ3D", data: {colorL:"#ffffff",innerC:"#ffffff",innerW:4,outerC:"#000000",outerW:12,shadowOn:true,shadowColor:"#000000",shadowX:8,shadowY:8,effect:"gold3d",vertical:false,textureSrc:null}},
+    {name: "金ピカ", data: {colorL:"#ffdd00",colorL2:"#ff8800",gradL:true,innerC:"#ffffff",innerW:4,outerC:"#000000",outerW:12,shadowOn:true,shadowColor:"#000000",shadowX:8,shadowY:8,effect:"none",vertical:false,textureSrc:null}},
     {name: "目立つ黄色", data: {colorL:"#ffee00",colorL2:"#ffaa00",gradL:true,innerC:"#ffffff",innerW:6,outerC:"#000000",outerW:14,shadowOn:true,shadowColor:"#000000",shadowX:5,shadowY:5,effect:"none",vertical:false,textureSrc:null}},
     {name: "ネオン", data: {colorL:"#00ffff",colorR:"#ff00ff",innerC:"#ffffff",innerW:4,outerW:0,effect:"neon",vertical:false,textureSrc:null}}
 ];
 let userStyles = [];
-let activeStyleRowId = null;
+let activeStyleRowId = null, activeStyleTarget = 'L';
+let savedPalette = [], _lastColorInput = null;
 window._fontsChanged = false;
 
 function updSCTitle() {
@@ -282,54 +318,62 @@ function updSCTitle() {
     document.getElementById('c_info').textContent = `1280×720px ｜ 【 】＜ ＞で囲んだ文字を拡大 ｜ クリックで選択 (${SC.dup}:複製 / ${SC.del}:削除) ｜ Ctrl+ホイールで拡縮`;
 }
 
-function autoSave() {
-    const data={rows:S.rows.map(r=>({...r,texture:null})),chars:S.chars.map(c=>({...c,img:null,_fadeCvs:null,_outlineCvs:null,_outlineCacheKey:null})),shapes:S.shapes,bgDarken:S.bgDarken,speedLine:S.speedLine,slColor:S.slColor,slCount:S.slCount,slAlpha:S.slAlpha,slCenterX:S.slCenterX,slCenterY:S.slCenterY,vignette:S.vignette};
-    try{localStorage.setItem('my_thumb_autobackup',JSON.stringify(data));}catch(e){}
-}
-
 function saveHistory(){
-    const state={rows:JSON.parse(JSON.stringify(S.rows.map(r=>({...r,texture:null})))),chars:S.chars.map(c=>({...c,img:null,_fadeCvs:null,_outlineCvs:null,_outlineCacheKey:null})),shapes:JSON.parse(JSON.stringify(S.shapes)),bgDarken:S.bgDarken,speedLine:S.speedLine,slColor:S.slColor,slCount:S.slCount,slAlpha:S.slAlpha,slCenterX:S.slCenterX,slCenterY:S.slCenterY,vignette:S.vignette};
+    const state={rows:JSON.parse(JSON.stringify(S.rows.map(r=>({...r,texture:null})))),chars:S.chars.map(c=>({...c,img:null,_fadeCvs:null,_outlineCvs:null,_outlineCacheKey:null})),shapes:JSON.parse(JSON.stringify(S.shapes)),bgDarken:S.bgDarken,speedLine:S.speedLine,slColor:S.slColor,slCount:S.slCount,slAlpha:S.slAlpha,slWidth:S.slWidth,slCenterX:S.slCenterX,slCenterY:S.slCenterY,vignette:S.vignette};
     historyStack=historyStack.slice(0,historyIndex+1); historyStack.push(state);
-    if(historyStack.length>20)historyStack.shift(); else historyIndex++;
-    autoSave();
+    if(historyStack.length>20)historyStack.shift(); else historyIndex=historyStack.length-1;
 }
 function loadHistory(idx){
     if(idx<0||idx>=historyStack.length)return; const st=historyStack[idx];
-    S.rows=JSON.parse(JSON.stringify(st.rows)); S.shapes=JSON.parse(JSON.stringify(st.shapes||[])); S.bgDarken=st.bgDarken; S.speedLine=st.speedLine; S.slColor=st.slColor; S.slCount=st.slCount; S.slAlpha=st.slAlpha; S.slCenterX=st.slCenterX; S.slCenterY=st.slCenterY; S.vignette=st.vignette;
+    S.rows=JSON.parse(JSON.stringify(st.rows)); S.shapes=JSON.parse(JSON.stringify(st.shapes||[])); S.bgDarken=st.bgDarken; S.speedLine=st.speedLine; S.slColor=st.slColor; S.slCount=st.slCount; S.slAlpha=st.slAlpha; S.slWidth=st.slWidth!==undefined?st.slWidth:3; S.slCenterX=st.slCenterX; S.slCenterY=st.slCenterY; S.vignette=st.vignette;
     let newChars=[]; let pendingImgLoads=0;
     st.chars.forEach(c=>{
         let ex=S.chars.find(ec=>ec.id===c.id);
         if(ex){ newChars.push({...c,img:ex.img,_fadeCvs:null,_outlineCvs:null,_outlineCacheKey:null}); }
-        else if(c.imgSrc){ pendingImgLoads++; const img=new Image(); img.onload=()=>{ newChars.push({...c,img:img,_fadeCvs:null,_outlineCvs:null,_outlineCacheKey:null}); pendingImgLoads--; if(pendingImgLoads===0){S.chars=newChars;buildSidebar();requestRender();autoSave();} }; img.onerror=()=>{ pendingImgLoads--; if(pendingImgLoads===0){S.chars=newChars;buildSidebar();requestRender();autoSave();} }; img.src=c.imgSrc; }
+        else if(c.imgSrc){ pendingImgLoads++; const img=new Image(); img.onload=()=>{ newChars.push({...c,img:img,_fadeCvs:null,_outlineCvs:null,_outlineCacheKey:null}); pendingImgLoads--; if(pendingImgLoads===0){S.chars=newChars;buildSidebar();requestRender();} }; img.onerror=()=>{ pendingImgLoads--; if(pendingImgLoads===0){S.chars=newChars;buildSidebar();requestRender();} }; img.src=c.imgSrc; }
     }); if(pendingImgLoads===0) S.chars=newChars;
     S.rows.forEach(r => { if(r.textureSrc) { let img = new Image(); img.onload=()=>r.texture=img; img.src=r.textureSrc; } });
-    historyIndex=idx; if(document.getElementById('vignetteToggle'))document.getElementById('vignetteToggle').checked=S.vignette; activeItem=null; buildSidebar(); requestRender(); autoSave();
+    historyIndex=idx; if(document.getElementById('vignetteToggle'))document.getElementById('vignetteToggle').checked=S.vignette; activeItem=null; buildSidebar(); requestRender();
 }
 function undo(){loadHistory(historyIndex-1)} function redo(){loadHistory(historyIndex+1)}
 
 function makeRow(overrides={}){
-    return {id:nextRowId++,name:'',textL:'',textR:'',colorL:'#ffffff',colorL2:'#cccccc',gradL:false,colorR:'#ffee00',colorR2:'#ff8800',gradR:false,innerC:'#ffffff',outerC:'#000000',fontFamily:"'Noto Sans JP'",size:60,x:30,y:100,angle:0,spacing:-4,scaleY:1.0,skewX:0,tagScale:1.25,blur:0,bubble:false,tail:'none',bubCol:'#ffffff',zabuton:false,zabStyle:'v-grad',zabCol:'#000000',zabAlpha:80,zabFull:false,shadowOn:false,shadowColor:'#000000',shadowX:10,shadowY:10,shadowBlur:5,effect:'none',z:globalZ++,alpha:100,innerW:6,outerW:12,visible:true,vertical:false,textureSrc:null,texture:null,txOffsetX:0,txOffsetY:0,txScale:100,txBlur:0,txBrightness:100,txContrast:100,txSaturation:100,txFilterOn:false,txAlpha:100,...overrides};
+    return {id:nextRowId++,name:'',textL:'',textC:'',textR:'',colorL:'#ffffff',colorL2:'#cccccc',gradL:false,colorC:'#00ccff',colorC2:'#0055cc',gradC:false,colorR:'#ffee00',colorR2:'#ff8800',gradR:false,innerC:'#ffffff',outerC:'#000000',fontFamily:"'Noto Sans JP'",size:60,x:30,y:100,angle:0,spacing:-4,scaleY:1.0,skewX:0,tagScale:1.25,blur:0,bubble:false,tail:'none',bubCol:'#ffffff',zabuton:false,zabStyle:'v-grad',zabCol:'#000000',zabAlpha:80,zabFull:false,shadowOn:false,shadowColor:'#000000',shadowX:10,shadowY:10,shadowBlur:5,effect:'none',z:globalZ++,alpha:100,innerW:6,outerW:12,visible:true,vertical:false,textureSrc:null,texture:null,txOffsetX:0,txOffsetY:0,txScale:100,txBlur:0,txBrightness:100,txContrast:100,txSaturation:100,txFilterOn:true,txAlpha:100,blendMode:'source-over',...overrides};
 }
 function makeChar(img,src=null,type='char'){ 
     const ratio=img.height/img.width; let initW=500,initX=740,initY=40,outOn=true;
     let initZ = type === 'bg' ? globalBgZ-- : globalZ++; 
     if(type==='bg'){ let scale=Math.max(1280/img.width,720/img.height); initW=img.width*scale; initX=(1280-initW)/2; initY=(720-img.height*scale)/2; outOn=false; }
-    return {id:nextCharId++,name:'',layerType:type,img:img,imgSrc:src||img.src,x:initX,y:initY,w:initW,h:initW*ratio,z:initZ,alpha:100,flipX:false,trimL:0,trimR:0,trimT:0,trimB:0,fadeB:0,glowOn:false,glowColor:'#ffffff',glowWidth:40,outlineOn:outOn,outlineColor:'#ffffff',outlineWidth:10,filterOn:false,brightness:100,contrast:100,saturation:100,blur:0,visible:true,_fadeCvs:null,_outlineCvs:null,_outlineCacheKey:null}; 
+    return {id:nextCharId++,name:'',layerType:type,img:img,imgSrc:src||img.src,x:initX,y:initY,w:initW,h:initW*ratio,z:initZ,alpha:100,flipX:false,trimL:0,trimR:0,trimT:0,trimB:0,fadeB:0,glowOn:false,glowColor:'#ffffff',glowWidth:40,outlineOn:outOn,outlineColor:'#ffffff',outlineWidth:10,filterOn:false,brightness:100,contrast:100,saturation:100,blur:0,visible:true,blendMode:'source-over',_fadeCvs:null,_outlineCvs:null,_outlineCacheKey:null}; 
 }
 function makeShape(overrides={}){
-    return {id:nextShapeId++,name:'',layerType:'shape',shapeType:'rect',x:540,y:260,w:200,h:200,fill:'#ff3355',outlineColor:'#ffffff',outlineWidth:0,alpha:100,z:globalZ++,angle:0,visible:true,...overrides};
+    return {id:nextShapeId++,name:'',layerType:'shape',shapeType:'rect',x:540,y:260,w:200,h:200,fill:'#ff3355',outlineColor:'#ffffff',outlineWidth:0,alpha:100,z:globalZ++,angle:0,visible:true,blendMode:'source-over',...overrides};
+}
+function makeFill(overrides={}){
+    return {id:nextCharId++,name:'',layerType:'fill',fillType:'solid',color1:'#1a1a2e',color2:'#16213e',gradAngle:90,alpha:100,z:globalBgZ--,visible:true,blendMode:'source-over',...overrides};
+}
+function drawFill(c){
+    if(c.alpha<=0||c.visible===false)return;
+    ctx.save();ctx.globalAlpha=c.alpha/100;ctx.globalCompositeOperation=c.blendMode||'source-over';
+    if(c.fillType==='gradient'){
+        const rad=(c.gradAngle||90)*Math.PI/180,len=Math.sqrt(640*640+360*360);
+        const g=ctx.createLinearGradient(640-Math.cos(rad)*len,360-Math.sin(rad)*len,640+Math.cos(rad)*len,360+Math.sin(rad)*len);
+        g.addColorStop(0,c.color1);g.addColorStop(1,c.color2);ctx.fillStyle=g;
+    }else{ctx.fillStyle=c.color1;}
+    ctx.fillRect(0,0,1280,720);ctx.restore();
 }
 
-let S = { rows: [], chars:[], shapes:[], bgDarken:0, speedLine:false, slColor:'#ffffff', slCount:150, slAlpha:50, slCenterX:640, slCenterY:360, vignette:false };
+let S = { rows: [], chars:[], shapes:[], bgDarken:0, speedLine:false, slColor:'#ffffff', slCount:150, slAlpha:50, slWidth:3, slCenterX:640, slCenterY:360, vignette:false };
 let cv,ctx,drag=null,snapX=null,snapY=null,renderPending=false,slCanvas=null,slParams='';
 
 function requestRender(){if(!renderPending){renderPending=true;requestAnimationFrame(()=>{if(ctx)render();renderPending=false})}}
 function drawSpeedLines(){
-    if(!S.speedLine)return; const currentParams=`${S.slColor}_${S.slCount}_${S.slAlpha}_${S.slCenterX}_${S.slCenterY}`;
+    if(!S.speedLine)return; const currentParams=`${S.slColor}_${S.slCount}_${S.slAlpha}_${S.slWidth}_${S.slCenterX}_${S.slCenterY}`;
     if(!slCanvas||slParams!==currentParams){
         slCanvas=document.createElement('canvas');slCanvas.width=1280;slCanvas.height=720;const sctx=slCanvas.getContext('2d');
         sctx.translate(S.slCenterX,S.slCenterY);sctx.globalAlpha=S.slAlpha/100;sctx.strokeStyle=S.slColor;
-        for(let i=0;i<S.slCount;i++){let angle=Math.random()*Math.PI*2;let r1=150+Math.random()*300;let r2=1500;sctx.beginPath();sctx.moveTo(Math.cos(angle)*r1,Math.sin(angle)*r1);sctx.lineTo(Math.cos(angle)*r2,Math.sin(angle)*r2);sctx.lineWidth=1+Math.random()*3;sctx.stroke()}slParams=currentParams;
+        const slW=S.slWidth!==undefined?S.slWidth:3;
+        for(let i=0;i<S.slCount;i++){let angle=Math.random()*Math.PI*2;let r1=150+Math.random()*300;let r2=1500;sctx.beginPath();sctx.moveTo(Math.cos(angle)*r1,Math.sin(angle)*r1);sctx.lineTo(Math.cos(angle)*r2,Math.sin(angle)*r2);sctx.lineWidth=1+Math.random()*slW;sctx.stroke()}slParams=currentParams;
     } ctx.drawImage(slCanvas,0,0);
 }
 
@@ -337,7 +381,7 @@ function drawShape(s){
     if(s.alpha<=0 || s.visible===false) return;
     const pad = s.outlineWidth || 0;
     
-    ctx.save(); ctx.globalAlpha = s.alpha/100;
+    ctx.save(); ctx.globalAlpha = s.alpha/100; ctx.globalCompositeOperation=s.blendMode||'source-over';
     ctx.translate(s.x + s.w/2, s.y + s.h/2); ctx.rotate((s.angle||0) * Math.PI/180);
     
     ctx.beginPath();
@@ -367,7 +411,7 @@ function getCharBounds(c){
     let dx=c.x+c.w*trimL; let dy=c.y+c.h*trimT; if(c.flipX){dx=c.x+c.w*trimR;} return {x:dx,y:dy,w:dW,h:dH};
 }
 function drawCharImage(c){
-    if(!c.img||c.alpha<=0||c.visible===false)return; ctx.save();ctx.globalAlpha=c.alpha/100;
+    if(!c.img||c.alpha<=0||c.visible===false)return; ctx.save();ctx.globalAlpha=c.alpha/100;ctx.globalCompositeOperation=c.blendMode||'source-over';
     let filterStr=[];if(c.filterOn)filterStr.push(`brightness(${c.brightness}%) contrast(${c.contrast}%) saturate(${c.saturation}%)`);if(c.blur>0)filterStr.push(`blur(${c.blur}px)`);
     ctx.filter=filterStr.length>0?filterStr.join(' '):'none';
     let tL=c.trimL/100,tR=c.trimR/100,tT=c.trimT/100,tB=c.trimB/100;
@@ -378,7 +422,7 @@ function drawCharImage(c){
     
     let drawSource = c.img; let dsx = sx, dsy = sy, dsW = sW, dsH = sH;
     if (c.fadeB > 0) {
-        const fKey = `${c.trimL}_${c.trimR}_${c.trimT}_${c.trimB}_${c.fadeB}`;
+        const fKey = `${c.w}_${c.h}_${c.trimL}_${c.trimR}_${c.trimT}_${c.trimB}_${c.fadeB}`;
         if (!c._fadeCvs || c._fadeKey !== fKey) {
             const fcv = document.createElement('canvas'); fcv.width=dW; fcv.height=dH; const fctx = fcv.getContext('2d');
             fctx.drawImage(c.img, sx, sy, sW, sH, 0, 0, dW, dH);
@@ -457,10 +501,12 @@ function drawLayout(layout,action,row,targetCtx=ctx){
 }
 function hitTestRow(row,px,py){
     const layL=buildLayout(row.textL,0,0,row);
-    const gap = (layL.h > 0 && row.textR) ? row.size * 0.2 : 0;
-    const layR=buildLayout(row.textR, row.vertical?0:layL.w, row.vertical?layL.h+gap:0, row);
-    const totalW = row.vertical ? Math.max(layL.w, layR.w) || row.size : layL.w+layR.w;
-    const totalH = row.vertical ? layL.h + gap + layR.h : row.size*Math.max(1,row.tagScale||1.25);
+    const gapLC = (layL.h > 0 && row.textC) ? row.size * 0.2 : 0;
+    const layC=buildLayout(row.textC, row.vertical?0:layL.w, row.vertical?layL.h+gapLC:0, row);
+    const gapCR = ((layL.h+layC.h) > 0 && row.textR) ? row.size * 0.2 : 0;
+    const layR=buildLayout(row.textR, row.vertical?0:layL.w+layC.w, row.vertical?layL.h+gapLC+layC.h+gapCR:0, row);
+    const totalW = row.vertical ? Math.max(layL.w, layC.w, layR.w) || row.size : layL.w+layC.w+layR.w;
+    const totalH = row.vertical ? layL.h + gapLC + layC.h + gapCR + layR.h : row.size*Math.max(1,row.tagScale||1.25);
     const angleRad=(row.angle||0)*Math.PI/180;const dx=px-row.x;const dy=py-row.y;const cosA=Math.cos(-angleRad);const sinA=Math.sin(-angleRad);
     const localX=dx*cosA-dy*sinA;const localY=dx*sinA+dy*cosA;
     if(row.vertical) {
@@ -478,7 +524,7 @@ function hitTestShape(s, px, py) {
     return localX >= -s.w/2 - 10 && localX <= s.w/2 + 10 && localY >= -s.h/2 - 10 && localY <= s.h/2 + 10;
 }
 function drawRow(row){
-    if((!row.textL&&!row.textR)||row.alpha<=0||row.visible===false)return; 
+    if((!row.textL&&!row.textC&&!row.textR)||row.alpha<=0||row.visible===false)return;
     const angleRad=(row.angle||0)*Math.PI/180;
     const inW=row.innerW!==undefined?row.innerW:6;
     const outW=row.outerW!==undefined?row.outerW:12;
@@ -486,19 +532,22 @@ function drawRow(row){
     ctx.save();ctx.globalAlpha=row.alpha/100;if(row.blur>0)ctx.filter=`blur(${row.blur}px)`;else ctx.filter='none';
     ctx.translate(row.x,row.y);ctx.rotate(angleRad);ctx.scale(1,row.scaleY||1);ctx.transform(1,0,row.skewX||0,1,0,0);
     
-    let layL, layR, totalW, totalH, gap=0;
+    let layL, layC, layR, totalW, totalH, gap=0, gapLC=0, gapCR=0;
     if(row.vertical) {
         ctx.textAlign='center'; ctx.textBaseline='top';
-        layL=buildLayout(row.textL,0,0,row); 
-        gap = (layL.h > 0 && row.textR) ? row.size * 0.2 : 0;
-        layR=buildLayout(row.textR, 0, layL.h + gap, row);
-        totalW=Math.max(layL.w, layR.w) || row.size;
-        totalH=layL.h + gap + layR.h;
+        layL=buildLayout(row.textL,0,0,row);
+        gapLC = (layL.h > 0 && row.textC) ? row.size * 0.2 : 0;
+        layC=buildLayout(row.textC, 0, layL.h + gapLC, row);
+        gapCR = ((layL.h + layC.h) > 0 && row.textR) ? row.size * 0.2 : 0;
+        layR=buildLayout(row.textR, 0, layL.h + gapLC + layC.h + gapCR, row);
+        totalW=Math.max(layL.w, layC.w, layR.w) || row.size;
+        totalH=layL.h + gapLC + layC.h + gapCR + layR.h;
     } else {
         ctx.textAlign='left'; ctx.textBaseline='bottom';
-        layL=buildLayout(row.textL,0,0,row); 
-        layR=buildLayout(row.textR,layL.w,0,row);
-        totalW=layL.w+layR.w;
+        layL=buildLayout(row.textL,0,0,row);
+        layC=buildLayout(row.textC, layL.w, 0, row);
+        layR=buildLayout(row.textR, layL.w + layC.w, 0, row);
+        totalW=layL.w+layC.w+layR.w;
         totalH=row.size*Math.max(1,row.tagScale||1.25);
     }
 
@@ -524,27 +573,17 @@ function drawRow(row){
     if(row.shadowOn){
         ctx.save();ctx.translate(row.shadowX,row.shadowY);ctx.shadowColor=row.shadowColor;ctx.shadowBlur=row.shadowBlur;ctx.fillStyle=row.shadowColor;ctx.strokeStyle=row.shadowColor;
         ctx.lineJoin='round';ctx.lineCap='round';
-        if(outW>0){ ctx.lineWidth=outW;drawLayout(layL,'stroke',row);drawLayout(layR,'stroke',row); }
-        drawLayout(layL,'fill',row);drawLayout(layR,'fill',row);ctx.restore();
+        if(outW>0){ ctx.lineWidth=outW;drawLayout(layL,'stroke',row);drawLayout(layC,'stroke',row);drawLayout(layR,'stroke',row); }
+        drawLayout(layL,'fill',row);drawLayout(layC,'fill',row);drawLayout(layR,'fill',row);ctx.restore();
     }
     const drawTextContent=()=>{
-        if(row.effect==='gold3d'){
-            const g=ctx.createLinearGradient(0,gradY1,0,gradY2);g.addColorStop(0,'#FFFDE7');g.addColorStop(0.3,'#FFF176');g.addColorStop(0.6,'#FBC02D');g.addColorStop(1,'#F57F17');ctx.lineJoin='round';ctx.lineCap='round';
-            ctx.save();ctx.shadowColor='rgba(0,0,0,1)';ctx.shadowBlur=0;ctx.shadowOffsetX=row.size*0.08;ctx.shadowOffsetY=row.size*0.08;
-            if(outW>0){ ctx.strokeStyle='#000000';ctx.lineWidth=outW*1.5;drawLayout(layL,'stroke',row);drawLayout(layR,'stroke',row); } ctx.restore();
-            if(inW>0){ ctx.strokeStyle='#ffffff';ctx.lineWidth=inW;drawLayout(layL,'stroke',row);drawLayout(layR,'stroke',row); } ctx.fillStyle=g;drawLayout(layL,'fill',row);drawLayout(layR,'fill',row);
-        }else if(row.effect==='silver'){
-            const g=ctx.createLinearGradient(0,gradY1,0,gradY2);g.addColorStop(0,'#FFFFFF');g.addColorStop(0.4,'#E0E0E0');g.addColorStop(0.6,'#9E9E9E');g.addColorStop(1,'#424242');ctx.lineJoin='round';ctx.lineCap='round';
-            ctx.save();ctx.shadowColor='rgba(0,0,0,0.8)';ctx.shadowBlur=row.size*0.1;ctx.shadowOffsetY=row.size*0.05;
-            if(outW>0){ ctx.strokeStyle='#000000';ctx.lineWidth=outW*1.2;drawLayout(layL,'stroke',row);drawLayout(layR,'stroke',row); } ctx.restore();
-            ctx.fillStyle=g;drawLayout(layL,'fill',row);drawLayout(layR,'fill',row);
-        }else if(row.effect==='neon'){
+        if(row.effect==='neon'){
             ctx.lineJoin='round';ctx.lineCap='round';ctx.save();ctx.shadowBlur=row.size*0.4;
-            if(inW>0){ ctx.lineWidth=inW*1.5;ctx.shadowColor=row.colorL;ctx.strokeStyle=row.colorL;drawLayout(layL,'stroke',row);ctx.shadowColor=row.colorR;ctx.strokeStyle=row.colorR;drawLayout(layR,'stroke',row); } ctx.restore();ctx.fillStyle='#ffffff';drawLayout(layL,'fill',row);drawLayout(layR,'fill',row);
+            if(inW>0){ ctx.lineWidth=inW*1.5;ctx.shadowColor=row.colorL;ctx.strokeStyle=row.colorL;drawLayout(layL,'stroke',row);ctx.shadowColor=row.colorC;ctx.strokeStyle=row.colorC;drawLayout(layC,'stroke',row);ctx.shadowColor=row.colorR;ctx.strokeStyle=row.colorR;drawLayout(layR,'stroke',row); } ctx.restore();ctx.fillStyle='#ffffff';drawLayout(layL,'fill',row);drawLayout(layC,'fill',row);drawLayout(layR,'fill',row);
         }else{
             ctx.lineJoin='round';ctx.lineCap='round';
-            if(outW>0){ ctx.strokeStyle=row.outerC;ctx.lineWidth=outW;drawLayout(layL,'stroke',row);drawLayout(layR,'stroke',row); }
-            if(inW>0){ ctx.strokeStyle=row.innerC;ctx.lineWidth=inW;drawLayout(layL,'stroke',row);drawLayout(layR,'stroke',row); }
+            if(outW>0){ ctx.strokeStyle=row.outerC;ctx.lineWidth=outW;drawLayout(layL,'stroke',row);drawLayout(layC,'stroke',row);drawLayout(layR,'stroke',row); }
+            if(inW>0){ ctx.strokeStyle=row.innerC;ctx.lineWidth=inW;drawLayout(layL,'stroke',row);drawLayout(layC,'stroke',row);drawLayout(layR,'stroke',row); }
             
             if (row.texture) {
                 const txScale = (row.txScale||100)/100;
@@ -596,7 +635,7 @@ function drawRow(row){
                 mctx.textAlign = ctx.textAlign; mctx.textBaseline = ctx.textBaseline;
                 let ox = row.vertical ? bW/2 : 100; let oy = row.vertical ? 100 : bH-100;
                 mctx.translate(ox, oy); mctx.fillStyle='#fff';
-                drawLayout(layL,'fill',row,mctx); drawLayout(layR,'fill',row,mctx);
+                drawLayout(layL,'fill',row,mctx); drawLayout(layC,'fill',row,mctx); drawLayout(layR,'fill',row,mctx);
                 mctx.globalCompositeOperation = 'source-in';
                 const baseX = row.vertical ? -totalW/2 : 0;
                 const baseY = row.vertical ? 0 : -totalH;
@@ -610,7 +649,8 @@ function drawRow(row){
                 ctx.drawImage(mcv, row.vertical ? -ox : -100, row.vertical ? -oy : -bH+100);
                 ctx.restore();
             } else {
-                if(row.gradL){const gL=ctx.createLinearGradient(0,gradY1,0,gradY2);gL.addColorStop(0,row.colorL);gL.addColorStop(1,row.colorL2);ctx.fillStyle=gL;}else{ctx.fillStyle=row.colorL;}drawLayout(layL,'fill',row); 
+                if(row.gradL){const gL=ctx.createLinearGradient(0,gradY1,0,gradY2);gL.addColorStop(0,row.colorL);gL.addColorStop(1,row.colorL2);ctx.fillStyle=gL;}else{ctx.fillStyle=row.colorL;}drawLayout(layL,'fill',row);
+                if(row.gradC){const gC=ctx.createLinearGradient(0,gradY1,0,gradY2);gC.addColorStop(0,row.colorC);gC.addColorStop(1,row.colorC2);ctx.fillStyle=gC;}else{ctx.fillStyle=row.colorC||'#00ccff';}drawLayout(layC,'fill',row);
                 if(row.gradR){const gR=ctx.createLinearGradient(0,gradY1,0,gradY2);gR.addColorStop(0,row.colorR);gR.addColorStop(1,row.colorR2);ctx.fillStyle=gR;}else{ctx.fillStyle=row.colorR;}drawLayout(layR,'fill',row);
             }
         }
@@ -624,15 +664,17 @@ function render(targetCtx=ctx, isExport=false){
     const oldCtx=ctx; ctx=targetCtx;
     const rList=getRenderList();
     
-    rList.filter(e=>e.type==='char'&&e.item.layerType==='bg').forEach(entry=>drawCharImage(entry.item));
-    
+    rList.filter(e=>e.type==='char'&&(e.item.layerType==='bg'||e.item.layerType==='fill')).forEach(entry=>{
+        if(entry.item.layerType==='fill')drawFill(entry.item);else drawCharImage(entry.item);
+    });
+
     if(S.bgDarken>0){ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=`rgba(30, 30, 30, ${S.bgDarken/100})`;ctx.fillRect(0,0,1280,720);ctx.restore();}
     if(S.speedLine){ctx.save();ctx.setTransform(1,0,0,1,0,0);drawSpeedLines();ctx.restore();}
-    
-    rList.filter(e=>!(e.type==='char'&&e.item.layerType==='bg')).forEach(entry => {
+
+    rList.filter(e=>!(e.type==='char'&&(e.item.layerType==='bg'||e.item.layerType==='fill'))).forEach(entry => {
         if(entry.type==='char') drawCharImage(entry.item);
         else if(entry.type==='shape') drawShape(entry.item);
-        else if(entry.type==='text') drawRow(entry.item);
+        else if(entry.type==='text'){const eff=entry.item.effect||'none';if(eff==='screen')ctx.globalCompositeOperation='screen';else if(eff==='difference')ctx.globalCompositeOperation='difference';drawRow(entry.item);ctx.globalCompositeOperation='source-over';}
     });
 
     if (S.vignette) {
@@ -644,10 +686,12 @@ function render(targetCtx=ctx, isExport=false){
         if(item && item.visible!==false){
             if(activeItem.pfx==='t'){
                 const layL=buildLayout(item.textL,0,0,item);
-                const gap = (layL.h > 0 && item.textR) ? item.size * 0.2 : 0;
-                const layR=buildLayout(item.textR,0,item.vertical?layL.h+gap:0,item);
-                const totalW = item.vertical ? (Math.max(layL.w, layR.w) || item.size) : layL.w+layR.w;
-                const totalH = item.vertical ? layL.h + gap + layR.h : item.size*Math.max(1,item.tagScale||1.25);
+                const gapLC2 = (layL.h > 0 && item.textC) ? item.size * 0.2 : 0;
+                const layC=buildLayout(item.textC,0,item.vertical?layL.h+gapLC2:0,item);
+                const gapCR2 = ((layL.h+layC.h) > 0 && item.textR) ? item.size * 0.2 : 0;
+                const layR=buildLayout(item.textR,0,item.vertical?layL.h+gapLC2+layC.h+gapCR2:0,item);
+                const totalW = item.vertical ? (Math.max(layL.w, layC.w, layR.w) || item.size) : layL.w+layC.w+layR.w;
+                const totalH = item.vertical ? layL.h + gapLC2 + layC.h + gapCR2 + layR.h : item.size*Math.max(1,item.tagScale||1.25);
                 ctx.translate(item.x, item.y); ctx.rotate((item.angle||0)*Math.PI/180); ctx.scale(1, item.scaleY||1);
                 if(item.vertical) ctx.strokeRect(-totalW/2-15, -15, totalW+30, totalH+30);
                 else ctx.strokeRect(-15, -totalH-15, totalW+30, totalH+30);
@@ -687,6 +731,7 @@ function getStylePreviewURL(styleData) {
 
 function openStyleModal(rowId) {
     activeStyleRowId = rowId;
+    document.querySelector('#styleModal .modal-header').textContent = `✨ ワンクリックスタイル`;
     const grid = document.getElementById('styleGrid'); grid.innerHTML = '';
     const allStyles = [...defaultStyles, ...userStyles];
     allStyles.forEach((s, idx) => {
@@ -695,10 +740,14 @@ function openStyleModal(rowId) {
         const nameSpan = document.createElement('div'); nameSpan.style.fontSize="10px"; nameSpan.style.justifyContent="center"; nameSpan.textContent = s.name; div.appendChild(nameSpan);
         const btnWrap = document.createElement('div');
         const applyBtn = document.createElement('button'); applyBtn.className="apply-btn"; applyBtn.textContent='適用';
-        applyBtn.onclick = () => { 
+        applyBtn.onclick = () => {
             const r = S.rows.find(row=>row.id===rowId);
-            if(r){ Object.assign(r, s.data); if(s.data.textureSrc){let tImg=new Image(); tImg.onload=()=>{r.texture=tImg;requestRender();}; tImg.src=s.data.textureSrc;} buildSidebar(); requestRender(); saveHistory(); }
-            document.getElementById('styleModal').classList.remove('active'); 
+            if(r){
+                Object.assign(r, s.data);
+                if(s.data.textureSrc){let tImg=new Image(); tImg.onload=()=>{r.texture=tImg;requestRender();}; tImg.src=s.data.textureSrc;}
+                buildSidebar(); requestRender(); saveHistory();
+            }
+            document.getElementById('styleModal').classList.remove('active');
         };
         btnWrap.appendChild(applyBtn);
         if(idx >= defaultStyles.length) {
@@ -733,6 +782,10 @@ function generateFontCustomSelect(rowId, selectedFont){
     html+=`</div></div>`; return html;
 }
 
+function bmSelect(pfx,id,item){
+    const bm=item.blendMode||'source-over';
+    return `<select data-pfx="${pfx}" data-id="${id}" data-key="blendMode" style="flex:1;font-size:10px;">${[['source-over','通常'],['multiply','乗算'],['screen','スクリーン'],['overlay','オーバーレイ'],['lighten','明るく'],['darken','暗く'],['color-dodge','覆い焼き'],['color-burn','焼き込み'],['difference','差の絶対値']].map(([v,l])=>`<option value="${v}"${bm===v?' selected':''}>${l}</option>`).join('')}</select>`;
+}
 function buildSidebar(){
     const sb=document.getElementById('sidebar');
     const uiState={sec:{},sub:{}};
@@ -753,19 +806,37 @@ function buildSidebar(){
 
     let mainLayers = [];
     S.rows.forEach(r => mainLayers.push({ type: 'text', pfx: 't', item: r, z: r.z }));
-    S.chars.forEach(c => { if(c.layerType !== 'bg') mainLayers.push({ type: 'char', pfx: 'c', item: c, z: c.z }); });
+    S.chars.forEach(c => { if(c.layerType !== 'bg' && c.layerType !== 'fill') mainLayers.push({ type: 'char', pfx: 'c', item: c, z: c.z }); });
     S.shapes.forEach(s => mainLayers.push({ type: 'shape', pfx: 's', item: s, z: s.z }));
     
     mainLayers.sort((a, b) => b.z - a.z);
 
+    const mainCount = S.rows.length + S.chars.filter(c=>c.layerType!=='bg'&&c.layerType!=='fill').length + S.shapes.length;
+    const bgCount = S.chars.filter(c=>c.layerType==='bg'||c.layerType==='fill').length;
+
     let htmlBlocks = [];
+    htmlBlocks.push(`<div id="palZone" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;padding:6px 4px 8px;margin-bottom:8px;border-bottom:1px solid var(--bd);">
+        <span style="font-size:10px;color:var(--muted);font-weight:700;flex-shrink:0;" title="カラーパレット — 色を選んで＋で保存、スウォッチをクリックで適用">🎨</span>
+        ${savedPalette.map((c,idx)=>`<span class="pal-swatch" data-pal-idx="${idx}" title="${c}" style="width:18px;height:18px;border-radius:3px;background:${c};border:1px solid rgba(255,255,255,.15);cursor:pointer;display:inline-block;flex-shrink:0;"></span>`).join('')}
+        <button type="button" class="btn-sm" id="palAddBtn" title="現在フォーカス中の色をパレットに追加" style="padding:1px 6px;font-size:13px;flex-shrink:0;">＋</button>
+    </div>`);
+    htmlBlocks.push(`
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 4px 6px 2px;margin-bottom:4px;border-bottom:2px solid var(--pri);">
+            <span style="font-size:13px;font-weight:900;color:var(--text);letter-spacing:0.03em;">📋 レイヤー</span>
+            <span style="font-size:11px;color:var(--muted);font-weight:700;">${mainCount}個</span>
+        </div>
+    `);
     htmlBlocks.push(`<div id="layerList">`);
 
+    let _textCounter = 0, _charCounter = 0, _shapeCounter = 0;
     mainLayers.forEach((layer, index) => {
         const i = layer.item.id;
         const pfx = layer.pfx;
         const item = layer.item;
         const sKey = pfx + i;
+        if(pfx==='t') _textCounter++;
+        else if(pfx==='c') _charCounter++;
+        else if(pfx==='s') _shapeCounter++;
         const isCol = uiState.sec[sKey] !== undefined ? uiState.sec[sKey] : true;
         const sub1 = uiState.sub[sKey + '_0'] !== undefined ? uiState.sub[sKey + '_0'] : true;
         const sub2 = uiState.sub[sKey + '_1'] !== undefined ? uiState.sub[sKey + '_1'] : true;
@@ -780,18 +851,18 @@ function buildSidebar(){
         let cardHtml = `<div class="sec ${isCol?'collapsed':''}" data-type="${layer.type}" data-pfx="${pfx}" data-id="${i}">`;
         
         if (pfx === 't') {
-            const title = item.name || item.textL || item.textR || `テキスト ${i}`;
-            cardHtml += `<div class="sec-h">${moveUI}<span class="sec-title" title="クリックで開閉">${esc(title)}</span><div style="display:flex;gap:4px;"><button type="button" class="btn-sm" data-style="${i}" title="スタイル読込" style="padding:2px 6px;color:var(--sec);border-color:var(--sec);">✨</button><button type="button" class="btn-sm" data-vis="t" data-id="${i}" title="表示切替" style="width:30px;font-size:12px;padding:2px 0;color:${item.visible!==false?'var(--text)':'var(--muted)'};">${item.visible!==false?'👁️':'❌'}</button><button type="button" class="btn-sm" data-dup="text" data-id="${i}" title="複製">⧉</button><button type="button" class="btn-sm" data-reset="true" data-pfx="t" data-id="${i}" title="装飾を初期化">🔄</button><button type="button" class="btn-sm danger" data-del="text" data-id="${i}" title="削除">✕</button></div><span class="sec-arrow">▾</span></div>`;
+            const title = item.name || item.textL || item.textC || item.textR || `テキスト ${_textCounter}`;
+            cardHtml += `<div class="sec-h" draggable="true">${moveUI}<span class="sec-title" title="クリックで開閉">${esc(title)}</span><div style="display:flex;gap:4px;"><button type="button" class="btn-sm" data-style="${i}" title="スタイル読込" style="padding:2px 6px;color:var(--sec);border-color:var(--sec);">✨</button><button type="button" class="btn-sm" data-vis="t" data-id="${i}" title="表示切替" style="width:30px;font-size:12px;padding:2px 0;color:${item.visible!==false?'var(--text)':'var(--muted)'};">${item.visible!==false?'👁️':'❌'}</button><button type="button" class="btn-sm" data-dup="text" data-id="${i}" title="複製">⧉</button><button type="button" class="btn-sm" data-reset="true" data-pfx="t" data-id="${i}" title="装飾を初期化">🔄</button><button type="button" class="btn-sm danger" data-del="text" data-id="${i}" title="削除">✕</button></div><span class="sec-arrow">▾</span></div>`;
             cardHtml += `<div class="sec-b">
                 <div class="text-group">
                     <div class="row text-input-row"><div class="text-field-wrap"><label>左テキスト</label><input type="text" class="title-sync" data-pfx="t" data-id="${i}" data-key="textL" value="${esc(item.textL)}"></div><div class="text-color-wrap"><label>色</label><div class="color-ctrls"><input type="color" data-pfx="t" data-id="${i}" data-key="colorL" value="${item.colorL}"><input type="color" data-pfx="t" data-id="${i}" data-key="colorL2" value="${item.colorL2}"><button type="button" class="tgl ${item.gradL?'on':''}" data-pfx="t" data-id="${i}" data-toggle="gradL">グラデ</button></div></div></div>
+                    <div class="row text-input-row" style="margin-top:8px"><div class="text-field-wrap"><label>中央テキスト</label><input type="text" class="title-sync" data-pfx="t" data-id="${i}" data-key="textC" value="${esc(item.textC||'')}"></div><div class="text-color-wrap"><label>色</label><div class="color-ctrls"><input type="color" data-pfx="t" data-id="${i}" data-key="colorC" value="${item.colorC||'#00ccff'}"><input type="color" data-pfx="t" data-id="${i}" data-key="colorC2" value="${item.colorC2||'#0055cc'}"><button type="button" class="tgl ${item.gradC?'on':''}" data-pfx="t" data-id="${i}" data-toggle="gradC">グラデ</button></div></div></div>
                     <div class="row text-input-row" style="margin-top:8px"><div class="text-field-wrap"><label>右テキスト</label><input type="text" class="title-sync" data-pfx="t" data-id="${i}" data-key="textR" value="${esc(item.textR)}"></div><div class="text-color-wrap"><label>色</label><div class="color-ctrls"><input type="color" data-pfx="t" data-id="${i}" data-key="colorR" value="${item.colorR}"><input type="color" data-pfx="t" data-id="${i}" data-key="colorR2" value="${item.colorR2}"><button type="button" class="tgl ${item.gradR?'on':''}" data-pfx="t" data-id="${i}" data-toggle="gradR">グラデ</button></div></div></div>
-                    <div class="row" style="margin-top:8px"><div style="flex:1"><label>エフェクト</label><select data-pfx="t" data-id="${i}" data-key="effect"><option value="none" ${item.effect==='none'?'selected':''}>なし</option><option value="gold3d" ${item.effect==='gold3d'?'selected':''}>ゴールド3D</option><option value="silver" ${item.effect==='silver'?'selected':''}>シルバー</option><option value="neon" ${item.effect==='neon'?'selected':''}>ネオン発光</option></select></div><div style="flex:1;display:flex;align-items:flex-end;"><button type="button" class="tgl ${item.vertical?'on':''}" data-pfx="t" data-id="${i}" data-toggle="vertical" style="width:100%;height:32px;margin-bottom:2px;">⬇️ 縦書き</button></div></div>
+                    <div class="row" style="margin-top:8px"><div style="flex:1"><label>エフェクト</label><select data-pfx="t" data-id="${i}" data-key="effect"><option value="none" ${item.effect==='none'?'selected':''}>なし</option><option value="neon" ${item.effect==='neon'?'selected':''}>ネオン発光</option><option value="screen" ${item.effect==='screen'?'selected':''}>スクリーン</option><option value="difference" ${item.effect==='difference'?'selected':''}>差の絶対値</option></select></div><div style="flex:1;display:flex;align-items:flex-end;"><button type="button" class="tgl ${item.vertical?'on':''}" data-pfx="t" data-id="${i}" data-toggle="vertical" style="width:100%;height:32px;margin-bottom:2px;">⬇️ 縦書き</button></div></div>
                     <div class="row" style="margin-top:6px; border:1px dashed var(--bd); padding:4px; border-radius:6px;"><label class="add-zone" style="flex:1; padding:4px; font-size:10px; margin:0; position:relative;">🎨 画像で文字を塗りつぶす<input type="file" accept="image/*" data-pfx="t" data-id="${i}" data-texture="true" style="display:none;"></label>${item.textureSrc ? `<button type="button" class="btn-sm danger" data-pfx="t" data-id="${i}" data-cleartxtr="true" style="margin-left:4px;">解除</button>` : ''}</div>
                     ${item.textureSrc ? `<div style="margin-top:6px;border:1px solid var(--bd);border-radius:6px;background:rgba(0,0,0,.15);overflow:hidden;">
                         <div style="padding:6px 10px;font-size:11px;font-weight:700;color:var(--muted);background:rgba(0,0,0,.2);">🖼️ テクスチャ調整</div>
                         <div style="padding:8px;display:flex;flex-direction:column;gap:6px;">
-                            <div class="ctrl-row"><button type="button" class="tgl ${item.txFilterOn?'on':''}" data-pfx="t" data-id="${i}" data-toggle="txFilterOn">色調補正を適用</button></div>
                             <div class="row">
                                 <div style="display:flex;align-items:center;gap:4px;flex:1"><label style="margin:0;white-space:nowrap">明るさ</label><input type="range" data-pfx="t" data-id="${i}" data-key="txBrightness" data-type="num" min="0" max="200" step="1" value="${item.txBrightness||100}" style="flex:1"><span class="val-badge" id="val_t_${i}_txBrightness">${item.txBrightness||100}%</span></div>
                                 <div style="display:flex;align-items:center;gap:4px;flex:1"><label style="margin:0;white-space:nowrap">ｺﾝﾄﾗｽ</label><input type="range" data-pfx="t" data-id="${i}" data-key="txContrast" data-type="num" min="0" max="200" step="1" value="${item.txContrast||100}" style="flex:1"><span class="val-badge" id="val_t_${i}_txContrast">${item.txContrast||100}%</span></div>
@@ -802,11 +873,11 @@ function buildSidebar(){
                             </div>
                             <div style="display:flex;align-items:center;gap:4px;"><label style="margin:0;white-space:nowrap">不透明度</label><input type="range" data-pfx="t" data-id="${i}" data-key="txAlpha" data-type="num" min="0" max="100" step="1" value="${item.txAlpha!==undefined?item.txAlpha:100}" style="flex:1"><span class="val-badge" id="val_t_${i}_txAlpha">${item.txAlpha!==undefined?item.txAlpha:100}%</span></div>
                             <div style="display:flex;align-items:center;gap:4px;">
-                                <button type="button" class="c-btn" data-txcenter="x" data-pfx="t" data-id="${i}" title="X中央に戻す" style="flex:0 0 auto;">C</button>
+                                <button type="button" class="c-btn" data-txcenter="x" data-pfx="t" data-id="${i}" title="X中央に戻す" style="flex:0 0 auto;">中央揃え</button>
                                 <label style="margin:0;white-space:nowrap">X</label><input type="range" data-pfx="t" data-id="${i}" data-key="txOffsetX" data-type="num" min="-500" max="500" step="1" value="${item.txOffsetX||0}" style="flex:1"><span class="val-badge" id="val_t_${i}_txOffsetX">${item.txOffsetX||0}px</span>
                             </div>
                             <div style="display:flex;align-items:center;gap:4px;">
-                                <button type="button" class="c-btn" data-txcenter="y" data-pfx="t" data-id="${i}" title="Y中央に戻す" style="flex:0 0 auto;">C</button>
+                                <button type="button" class="c-btn" data-txcenter="y" data-pfx="t" data-id="${i}" title="Y中央に戻す" style="flex:0 0 auto;">中央揃え</button>
                                 <label style="margin:0;white-space:nowrap">Y</label><input type="range" data-pfx="t" data-id="${i}" data-key="txOffsetY" data-type="num" min="-500" max="500" step="1" value="${item.txOffsetY||0}" style="flex:1"><span class="val-badge" id="val_t_${i}_txOffsetY">${item.txOffsetY||0}px</span>
                             </div>
                             <div style="display:flex;align-items:center;gap:4px;"><label class="drag-val" data-pfx="t" data-id="${i}" data-key="txScale" style="margin:0;white-space:nowrap;cursor:ew-resize;">↔ サイズ</label><input type="range" data-pfx="t" data-id="${i}" data-key="txScale" data-type="num" min="10" max="400" step="1" value="${item.txScale||100}" style="flex:1"><span class="val-badge" id="val_t_${i}_txScale">${item.txScale||100}%</span></div>
@@ -816,7 +887,7 @@ function buildSidebar(){
                 <div class="color-row" style="margin-top:8px"><label>内フチ<input type="color" data-pfx="t" data-id="${i}" data-key="innerC" value="${item.innerC}"></label><div style="flex:1; display:flex; gap:4px; align-items:center;"><label class="drag-val" data-pfx="t" data-id="${i}" data-key="innerW" style="margin:0; white-space:nowrap; cursor:ew-resize;" title="左右にドラッグして値を変えられます">↔ 幅</label><input type="range" data-pfx="t" data-id="${i}" data-key="innerW" data-type="num" min="0" max="50" step="1" value="${item.innerW!==undefined?item.innerW:6}" style="flex:1"><span class="val-badge" id="val_t_${i}_innerW">${item.innerW!==undefined?item.innerW:6}px</span></div><label>外フチ<input type="color" data-pfx="t" data-id="${i}" data-key="outerC" value="${item.outerC}"></label><div style="flex:1; display:flex; gap:4px; align-items:center;"><label class="drag-val" data-pfx="t" data-id="${i}" data-key="outerW" style="margin:0; white-space:nowrap; cursor:ew-resize;" title="左右にドラッグして値を変えられます">↔ 幅</label><input type="range" data-pfx="t" data-id="${i}" data-key="outerW" data-type="num" min="0" max="100" step="1" value="${item.outerW!==undefined?item.outerW:12}" style="flex:1"><span class="val-badge" id="val_t_${i}_outerW">${item.outerW!==undefined?item.outerW:12}px</span></div></div>
                 <div class="ctrl-row"><button type="button" class="tgl ${item.bubble?'on':''}" data-pfx="t" data-id="${i}" data-toggle="bubble">💬 バナー</button><label style="margin:0;font-size:10px;display:flex;align-items:center;gap:3px">色<input type="color" data-pfx="t" data-id="${i}" data-key="bubCol" value="${item.bubCol}"></label><div class="tail-group"><button type="button" class="tail-btn ${item.tail==='lt'?'on':''}" data-pfx="t" data-id="${i}" data-tail="lt">↖</button><button type="button" class="tail-btn ${item.tail==='lb'?'on':''}" data-pfx="t" data-id="${i}" data-tail="lb">↙</button><button type="button" class="tail-btn ${item.tail==='rt'?'on':''}" data-pfx="t" data-id="${i}" data-tail="rt">↗</button><button type="button" class="tail-btn ${item.tail==='rb'?'on':''}" data-pfx="t" data-id="${i}" data-tail="rb">↘</button><button type="button" class="tail-btn ${item.tail==='none'?'on':''}" data-pfx="t" data-id="${i}" data-tail="none">✕</button></div></div>
                 <div class="sub-sec ${sub1?'collapsed':''}">
-                    <div class="sub-sec-h">⚙️ 詳細設定 (影・ざぶとんなど) <span class="sec-arrow">▾</span></div>
+                    <div class="sub-sec-h">⚙️ 詳細設定 <span class="sec-arrow">▾</span></div>
                     <div class="sub-sec-b">
                         <div class="ctrl-row">
                             <button type="button" class="tgl ${item.shadowOn?'on':''}" data-pfx="t" data-id="${i}" data-toggle="shadowOn">⬛ ドロップシャドウ</button>
@@ -825,6 +896,9 @@ function buildSidebar(){
                         <div class="row">
                             <div style="display:flex;align-items:center;gap:4px;flex:1"><label style="margin:0;white-space:nowrap">横ズレ</label><input type="range" data-pfx="t" data-id="${i}" data-key="shadowX" data-type="num" min="-50" max="50" step="1" value="${item.shadowX}"><span class="val-badge" id="val_t_${i}_shadowX">${item.shadowX}px</span></div>
                             <div style="display:flex;align-items:center;gap:4px;flex:1"><label style="margin:0;white-space:nowrap">縦ズレ</label><input type="range" data-pfx="t" data-id="${i}" data-key="shadowY" data-type="num" min="-50" max="50" step="1" value="${item.shadowY}"><span class="val-badge" id="val_t_${i}_shadowY">${item.shadowY}px</span></div>
+                        </div>
+                        <div class="row" style="margin-top:4px;">
+                            <div style="display:flex;align-items:center;gap:4px;flex:1"><label style="margin:0;white-space:nowrap">ぼかし</label><input type="range" data-pfx="t" data-id="${i}" data-key="shadowBlur" data-type="num" min="0" max="80" step="1" value="${item.shadowBlur!==undefined?item.shadowBlur:5}"><span class="val-badge" id="val_t_${i}_shadowBlur">${item.shadowBlur!==undefined?item.shadowBlur:5}px</span></div>
                         </div>
                         <div class="ctrl-row" style="border-top:1px solid #444; padding-top:8px; margin-top:4px;">
                             <button type="button" class="tgl ${item.zabuton?'on':''}" data-pfx="t" data-id="${i}" data-toggle="zabuton">🔲 ざぶとん</button>
@@ -842,18 +916,16 @@ function buildSidebar(){
                     <div style="display:flex;align-items:center;gap:4px;flex:1"><label style="margin:0;white-space:nowrap">斜体</label><input type="range" data-pfx="t" data-id="${i}" data-key="skewX" data-type="num" min="-0.6" max="0.6" step="0.05" value="${item.skewX}"><span class="val-badge" id="val_t_${i}_skewX">${item.skewX}</span></div>
                 </div>
                 <div class="row" style="margin-top:6px">
-                    <div style="display:flex;align-items:center;gap:4px;flex:1"><label style="margin:0;white-space:nowrap">【】拡大</label><input type="range" data-pfx="t" data-id="${i}" data-key="tagScale" data-type="num" min="1.0" max="3.0" step="0.05" value="${item.tagScale}"><span class="val-badge" id="val_t_${i}_tagScale">${item.tagScale}x</span></div>
+                    <div style="display:flex;align-items:center;gap:4px;flex:1"><label style="margin:0;white-space:nowrap">【】拡大率</label><input type="range" data-pfx="t" data-id="${i}" data-key="tagScale" data-type="num" min="1.0" max="3.0" step="0.05" value="${item.tagScale}"><span class="val-badge" id="val_t_${i}_tagScale">${item.tagScale}x</span></div>
                     <div style="display:flex;align-items:center;gap:4px;flex:1"><label style="margin:0;white-space:nowrap">ぼかし</label><input type="range" data-pfx="t" data-id="${i}" data-key="blur" data-type="num" min="0" max="40" step="1" value="${item.blur}"><span class="val-badge" id="val_t_${i}_blur">${item.blur}px</span></div>
                 </div>
                 <div class="row" style="margin-top:6px">
                     <div><label class="drag-val" data-pfx="t" data-id="${i}" data-key="size" style="cursor:ew-resize;" title="左右にドラッグして値を変えられます">↔ サイズ</label><input type="number" class="drag-val" data-pfx="t" data-id="${i}" data-key="size" data-type="num" value="${item.size}" min="10" max="800" style="cursor:ew-resize;"></div>
                     <div style="flex:1.5"><label>フォント</label>${generateFontCustomSelect(i, item.fontFamily)}</div>
                 </div>
-                <div class="pos-row" style="margin-top:6px">
-                    <button type="button" class="c-btn" data-center="x" data-pfx="t" data-id="${i}" title="横中央に配置">C</button>
-                    <label>X</label><input type="range" data-pfx="t" data-id="${i}" data-key="x" data-type="num" min="-200" max="1280" step="1" value="${Math.round(item.x)}">
-                    <button type="button" class="c-btn" data-center="y" data-pfx="t" data-id="${i}" title="縦中央に配置">C</button>
-                    <label>Y</label><input type="range" data-pfx="t" data-id="${i}" data-key="y" data-type="num" min="-100" max="820" step="1" value="${Math.round(item.y)}">
+                <div style="display:flex;flex-direction:column;gap:4px;margin-top:6px;">
+                    <div class="pos-row"><button type="button" class="c-btn" data-center="x" data-pfx="t" data-id="${i}" title="横中央に配置">中央揃え</button><label>X</label><input type="range" data-pfx="t" data-id="${i}" data-key="x" data-type="num" min="-200" max="1280" step="1" value="${Math.round(item.x)}" style="flex:1;"><span class="val-badge" id="val_t_${i}_x">${Math.round(item.x)}</span></div>
+                    <div class="pos-row"><button type="button" class="c-btn" data-center="y" data-pfx="t" data-id="${i}" title="縦中央に配置">中央揃え</button><label>Y</label><input type="range" data-pfx="t" data-id="${i}" data-key="y" data-type="num" min="-100" max="820" step="1" value="${Math.round(item.y)}" style="flex:1;"><span class="val-badge" id="val_t_${i}_y">${Math.round(item.y)}</span></div>
                 </div>
                 <div class="row" style="margin-top:6px">
                     <div style="display:flex;align-items:center;gap:4px;flex:1"><label class="drag-val" data-pfx="t" data-id="${i}" data-key="angle" style="margin:0;white-space:nowrap;cursor:ew-resize;" title="左右にドラッグして値を変えられます">↔ 傾き</label><input type="range" data-pfx="t" data-id="${i}" data-key="angle" data-type="num" min="-15" max="15" step="1" value="${item.angle}"><span class="val-badge" id="val_t_${i}_angle">${item.angle}°</span></div>
@@ -865,7 +937,7 @@ function buildSidebar(){
             </div>`;
         } else if (pfx === 's') {
             const title = item.name || `図形 ${i}`;
-            cardHtml += `<div class="sec-h">${moveUI}<span class="sec-title" title="クリックで開閉">${esc(title)}</span><div style="display:flex;gap:4px;"><button type="button" class="btn-sm" data-vis="s" data-id="${i}" title="表示切替" style="width:30px;font-size:12px;padding:2px 0;color:${item.visible!==false?'var(--text)':'var(--muted)'};">${item.visible!==false?'👁️':'❌'}</button><button type="button" class="btn-sm" data-dup="shape" data-id="${i}" title="複製">⧉</button><button type="button" class="btn-sm" data-reset="true" data-pfx="s" data-id="${i}" title="装飾を初期化">🔄</button><button type="button" class="btn-sm danger" data-del="shape" data-id="${i}" title="削除">✕</button></div><span class="sec-arrow">▾</span></div>`;
+            cardHtml += `<div class="sec-h" draggable="true">${moveUI}<span class="sec-title" title="クリックで開閉">${esc(title)}</span><div style="display:flex;gap:4px;"><button type="button" class="btn-sm" data-vis="s" data-id="${i}" title="表示切替" style="width:30px;font-size:12px;padding:2px 0;color:${item.visible!==false?'var(--text)':'var(--muted)'};">${item.visible!==false?'👁️':'❌'}</button><button type="button" class="btn-sm" data-dup="shape" data-id="${i}" title="複製">⧉</button><button type="button" class="btn-sm" data-reset="true" data-pfx="s" data-id="${i}" title="装飾を初期化">🔄</button><button type="button" class="btn-sm danger" data-del="shape" data-id="${i}" title="削除">✕</button></div><span class="sec-arrow">▾</span></div>`;
             cardHtml += `<div class="sec-b">
                 <div class="row">
                     <div style="flex:1"><label>形</label><select data-pfx="s" data-id="${i}" data-key="shapeType"><option value="rect" ${item.shapeType==='rect'?'selected':''}>四角</option><option value="circle" ${item.shapeType==='circle'?'selected':''}>丸</option><option value="arrow" ${item.shapeType==='arrow'?'selected':''}>矢印</option></select></div>
@@ -875,11 +947,9 @@ function buildSidebar(){
                     <label>フチ色<input type="color" data-pfx="s" data-id="${i}" data-key="outlineColor" value="${item.outlineColor}"></label>
                     <div style="flex:1; display:flex; gap:4px; align-items:center;"><label class="drag-val" data-pfx="s" data-id="${i}" data-key="outlineWidth" style="margin:0; white-space:nowrap; cursor:ew-resize;" title="左右にドラッグして値を変えられます">↔ 幅</label><input type="range" data-pfx="s" data-id="${i}" data-key="outlineWidth" data-type="num" min="0" max="100" step="1" value="${item.outlineWidth!==undefined?item.outlineWidth:8}" style="flex:1"><span class="val-badge" id="val_s_${i}_outlineWidth">${item.outlineWidth!==undefined?item.outlineWidth:8}px</span></div>
                 </div>
-                <div class="pos-row" style="margin-top:8px">
-                    <button type="button" class="c-btn" data-center="x" data-pfx="s" data-id="${i}" title="横中央に配置">C</button>
-                    <label>X</label><input type="range" data-pfx="s" data-id="${i}" data-key="x" data-type="num" min="-1280" max="1280" step="1" value="${Math.round(item.x)}">
-                    <button type="button" class="c-btn" data-center="y" data-pfx="s" data-id="${i}" title="縦中央に配置">C</button>
-                    <label>Y</label><input type="range" data-pfx="s" data-id="${i}" data-key="y" data-type="num" min="-720" max="720" step="1" value="${Math.round(item.y)}">
+                <div style="display:flex;flex-direction:column;gap:4px;margin-top:8px;">
+                    <div class="pos-row"><button type="button" class="c-btn" data-center="x" data-pfx="s" data-id="${i}" title="横中央に配置">中央揃え</button><label>X</label><input type="range" data-pfx="s" data-id="${i}" data-key="x" data-type="num" min="-1280" max="1280" step="1" value="${Math.round(item.x)}" style="flex:1;"><span class="val-badge" id="val_s_${i}_x">${Math.round(item.x)}</span></div>
+                    <div class="pos-row"><button type="button" class="c-btn" data-center="y" data-pfx="s" data-id="${i}" title="縦中央に配置">中央揃え</button><label>Y</label><input type="range" data-pfx="s" data-id="${i}" data-key="y" data-type="num" min="-720" max="720" step="1" value="${Math.round(item.y)}" style="flex:1;"><span class="val-badge" id="val_s_${i}_y">${Math.round(item.y)}</span></div>
                 </div>
                 <div class="row" style="margin-top:6px">
                     <div style="display:flex;align-items:center;gap:4px;flex:1"><label class="drag-val" data-pfx="s" data-id="${i}" data-key="w" style="margin:0;white-space:nowrap;cursor:ew-resize;" title="左右にドラッグして値を変えられます">↔ 幅</label><input type="range" data-pfx="s" data-id="${i}" data-key="w" data-type="num" min="10" max="2000" step="1" value="${Math.round(item.w)}" style="flex:1"><span class="val-badge" id="val_s_${i}_w">${Math.round(item.w)}</span></div>
@@ -889,10 +959,11 @@ function buildSidebar(){
                     <div style="display:flex;align-items:center;gap:4px;flex:1"><label class="drag-val" data-pfx="s" data-id="${i}" data-key="angle" style="margin:0;white-space:nowrap;cursor:ew-resize;" title="左右にドラッグして値を変えられます">↔ 傾き</label><input type="range" data-pfx="s" data-id="${i}" data-key="angle" data-type="num" min="-180" max="180" step="1" value="${item.angle}"><span class="val-badge" id="val_s_${i}_angle">${item.angle}°</span></div>
                     <div style="flex:1; display:flex; gap:4px; align-items:center; margin-left:8px;"><label style="margin:0; white-space:nowrap;">不透明度</label><input type="range" data-pfx="s" data-id="${i}" data-key="alpha" data-type="num" min="0" max="100" step="1" value="${item.alpha}" style="flex:1"><span class="val-badge" id="val_s_${i}_alpha">${item.alpha}%</span></div>
                 </div>
+                <div class="row" style="margin-top:6px"><label>ブレンド</label>${bmSelect('s',i,item)}</div>
             </div>`;
         } else if (pfx === 'c') {
             const title = item.name || `画像 ${i}`;
-            cardHtml += `<div class="sec-h">${moveUI}<span class="sec-title" title="クリックで開閉">${esc(title)}</span><div style="display:flex;gap:4px;"><button type="button" class="btn-sm" data-vis="c" data-id="${i}" title="表示切替" style="width:30px;font-size:12px;padding:2px 0;color:${item.visible!==false?'var(--text)':'var(--muted)'};">${item.visible!==false?'👁️':'❌'}</button><button type="button" class="btn-sm" data-dup="char" data-id="${i}" title="複製">⧉</button><button type="button" class="btn-sm" data-reset="true" data-pfx="c" data-id="${i}" title="装飾を初期化">🔄</button><button type="button" class="btn-sm danger" data-del="char" data-id="${i}" title="削除">✕</button></div><span class="sec-arrow">▾</span></div>`;
+            cardHtml += `<div class="sec-h" draggable="true">${moveUI}<span class="sec-title" title="クリックで開閉">${esc(title)}</span><div style="display:flex;gap:4px;"><button type="button" class="btn-sm" data-vis="c" data-id="${i}" title="表示切替" style="width:30px;font-size:12px;padding:2px 0;color:${item.visible!==false?'var(--text)':'var(--muted)'};">${item.visible!==false?'👁️':'❌'}</button><button type="button" class="btn-sm" data-dup="char" data-id="${i}" title="複製">⧉</button><button type="button" class="btn-sm" data-reset="true" data-pfx="c" data-id="${i}" title="装飾を初期化">🔄</button><button type="button" class="btn-sm danger" data-del="char" data-id="${i}" title="削除">✕</button></div><span class="sec-arrow">▾</span></div>`;
             cardHtml += `<div class="sec-b">
                 <img class="char-mini-thumb" src="${item.img.src}">
                 <div class="ctrl-row" style="margin-bottom:6px;">
@@ -941,18 +1012,17 @@ function buildSidebar(){
                 <div class="ctrl-row" style="margin-top:6px;">
                     <div style="flex:1; display:flex; gap:4px; align-items:center;"><label style="margin:0; white-space:nowrap;">不透明度</label><input type="range" data-pfx="c" data-id="${i}" data-key="alpha" data-type="num" min="0" max="100" step="1" value="${item.alpha}" style="flex:1"><span class="val-badge" id="val_c_${i}_alpha">${item.alpha}%</span></div>
                 </div>
-                <div class="pos-row" style="margin-top:6px">
-                    <button type="button" class="c-btn" data-center="x" data-pfx="c" data-id="${i}" title="横中央に配置">C</button>
-                    <label>X</label><input type="range" data-pfx="c" data-id="${i}" data-key="x" data-type="num" min="-1280" max="1280" step="1" value="${Math.round(item.x)}">
-                    <button type="button" class="c-btn" data-center="y" data-pfx="c" data-id="${i}" title="縦中央に配置">C</button>
-                    <label>Y</label><input type="range" data-pfx="c" data-id="${i}" data-key="y" data-type="num" min="-720" max="720" step="1" value="${Math.round(item.y)}">
+                <div style="display:flex;flex-direction:column;gap:4px;margin-top:6px;">
+                    <div class="pos-row"><button type="button" class="c-btn" data-center="x" data-pfx="c" data-id="${i}" title="横中央に配置">中央揃え</button><label>X</label><input type="range" data-pfx="c" data-id="${i}" data-key="x" data-type="num" min="-1280" max="1280" step="1" value="${Math.round(item.x)}" style="flex:1;"><span class="val-badge" id="val_c_${i}_x">${Math.round(item.x)}</span></div>
+                    <div class="pos-row"><button type="button" class="c-btn" data-center="y" data-pfx="c" data-id="${i}" title="縦中央に配置">中央揃え</button><label>Y</label><input type="range" data-pfx="c" data-id="${i}" data-key="y" data-type="num" min="-720" max="720" step="1" value="${Math.round(item.y)}" style="flex:1;"><span class="val-badge" id="val_c_${i}_y">${Math.round(item.y)}</span></div>
                 </div>
                 <div class="pos-row" style="margin-top:6px">
                     <div style="display:flex;align-items:center;gap:4px; width:100%"><label class="drag-val" data-pfx="c" data-id="${i}" data-key="sw" style="margin:0;white-space:nowrap;cursor:ew-resize;" title="左右にドラッグして値を変えられます">↔ サイズ</label><input type="range" data-pfx="c" data-id="${i}" data-key="sw" data-type="num" min="10" max="2500" step="1" value="${Math.round(item.w)}" style="flex:1"></div>
                 </div>
+                <div class="row" style="margin-top:6px"><label>ブレンド</label>${bmSelect('c',i,item)}</div>
             </div>`;
         }
-        
+
         cardHtml += `</div>`;
         htmlBlocks.push(cardHtml);
     });
@@ -960,11 +1030,17 @@ function buildSidebar(){
     htmlBlocks.push(`</div>`); 
 
     let bgLayers = [];
-    S.chars.forEach(c => { if(c.layerType === 'bg') bgLayers.push({ pfx: 'c', item: c, z: c.z }); });
+    S.chars.forEach(c => { if(c.layerType === 'bg' || c.layerType === 'fill') bgLayers.push({ pfx: 'c', item: c, z: c.z }); });
     bgLayers.sort((a, b) => b.z - a.z);
 
     if (bgLayers.length > 0) {
-        htmlBlocks.push(`<div style="height:4px; background:rgba(0,0,0,0.25); border-bottom:1px solid rgba(255,255,255,0.05); margin:24px 4px 16px 4px; border-radius:2px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);"></div>`);
+        htmlBlocks.push(`<div style="height:1px;background:var(--bd);margin:20px 0 12px 0;"></div>`);
+        htmlBlocks.push(`
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 4px 6px 2px;margin-bottom:4px;border-bottom:2px solid var(--sec);">
+                <span style="font-size:13px;font-weight:900;color:var(--text);letter-spacing:0.03em;">🖼️ 背景レイヤー</span>
+                <span style="font-size:11px;color:var(--muted);font-weight:700;">${bgCount}個</span>
+            </div>
+        `);
         htmlBlocks.push(`<div id="bgLayerList">`);
         
         bgLayers.forEach((layer, index) => {
@@ -981,11 +1057,24 @@ function buildSidebar(){
                 <button type="button" class="order-btn" data-move="up" data-pfx="${pfx}" data-id="${i}" title="前面へ移動" ${isFirst?'disabled':''}>▲</button>
                 <button type="button" class="order-btn" data-move="down" data-pfx="${pfx}" data-id="${i}" title="背面へ移動" ${isLast?'disabled':''}>▼</button>
             </div>`;
-            
+
+            if(item.layerType==='fill'){
+                const title=item.name||`塗りレイヤー`;
+                let cardHtml=`<div class="sec ${isCol?'collapsed':''}" data-type="fill" data-pfx="c" data-id="${i}">`;
+                cardHtml+=`<div class="sec-h" draggable="true">${moveUI}<span class="sec-title" title="クリックで開閉">🎨 ${esc(title)}</span><div style="display:flex;gap:4px;"><button type="button" class="btn-sm" data-vis="c" data-id="${i}" title="表示切替" style="width:30px;font-size:12px;padding:2px 0;color:${item.visible!==false?'var(--text)':'var(--muted)'};">${item.visible!==false?'👁️':'❌'}</button><button type="button" class="btn-sm" data-dup="char" data-id="${i}" title="複製">⧉</button><button type="button" class="btn-sm danger" data-del="char" data-id="${i}" title="削除">✕</button></div><span class="sec-arrow">▾</span></div>`;
+                cardHtml+=`<div class="sec-b">
+                <div class="row" style="gap:6px;align-items:center;flex-wrap:wrap;"><label>色1</label><input type="color" data-pfx="c" data-id="${i}" data-key="color1" value="${item.color1}"><label>色2</label><input type="color" data-pfx="c" data-id="${i}" data-key="color2" value="${item.color2}"><button type="button" class="tgl ${item.fillType==='gradient'?'on':''}" data-pfx="c" data-id="${i}" data-toggle="fillType">グラデ</button></div>
+                ${item.fillType==='gradient'?`<div class="pos-row" style="margin-top:6px;"><label>角度</label><input type="range" data-pfx="c" data-id="${i}" data-key="gradAngle" data-type="num" min="0" max="360" step="1" value="${item.gradAngle||90}" style="flex:1"><span class="val-badge" id="val_c_${i}_gradAngle">${item.gradAngle||90}°</span></div>`:''}
+                <div class="pos-row" style="margin-top:6px;"><label>不透明度</label><input type="range" data-pfx="c" data-id="${i}" data-key="alpha" data-type="num" min="0" max="100" step="1" value="${item.alpha}" style="flex:1"><span class="val-badge" id="val_c_${i}_alpha">${item.alpha}%</span></div>
+                <div class="row" style="margin-top:6px;"><label>ブレンド</label>${bmSelect('c',i,item)}</div></div>`;
+                cardHtml+=`</div>`;htmlBlocks.push(cardHtml);
+                return;
+            }
+
             const title = item.name || `背景画像 ${i}`;
-            
+
             let cardHtml = `<div class="sec ${isCol?'collapsed':''}" data-type="bg" data-pfx="c" data-id="${i}">`;
-            cardHtml += `<div class="sec-h">${moveUI}<span class="sec-title" title="クリックで開閉">${esc(title)}</span><div style="display:flex;gap:4px;"><button type="button" class="btn-sm" data-vis="c" data-id="${i}" title="表示切替" style="width:30px;font-size:12px;padding:2px 0;color:${item.visible!==false?'var(--text)':'var(--muted)'};">${item.visible!==false?'👁️':'❌'}</button><button type="button" class="btn-sm" data-dup="char" data-id="${i}" title="複製">⧉</button><button type="button" class="btn-sm" data-reset="true" data-pfx="c" data-id="${i}" title="装飾を初期化">🔄</button><button type="button" class="btn-sm danger" data-del="char" data-id="${i}" title="削除">✕</button></div><span class="sec-arrow">▾</span></div>`;
+            cardHtml += `<div class="sec-h" draggable="true">${moveUI}<span class="sec-title" title="クリックで開閉">${esc(title)}</span><div style="display:flex;gap:4px;"><button type="button" class="btn-sm" data-vis="c" data-id="${i}" title="表示切替" style="width:30px;font-size:12px;padding:2px 0;color:${item.visible!==false?'var(--text)':'var(--muted)'};">${item.visible!==false?'👁️':'❌'}</button><button type="button" class="btn-sm" data-dup="char" data-id="${i}" title="複製">⧉</button><button type="button" class="btn-sm" data-reset="true" data-pfx="c" data-id="${i}" title="装飾を初期化">🔄</button><button type="button" class="btn-sm danger" data-del="char" data-id="${i}" title="削除">✕</button></div><span class="sec-arrow">▾</span></div>`;
             cardHtml += `<div class="sec-b">
                 <img class="char-mini-thumb" src="${item.img.src}">
                 <div class="ctrl-row" style="margin-bottom:6px;"><button type="button" class="tgl ${item.flipX?'on':''}" data-pfx="c" data-id="${i}" data-toggle="flipX">⇄ 反転</button></div>
@@ -1022,18 +1111,17 @@ function buildSidebar(){
                 <div class="ctrl-row" style="margin-top:6px;">
                     <div style="flex:1; display:flex; gap:4px; align-items:center;"><label style="margin:0; white-space:nowrap;">不透明度</label><input type="range" data-pfx="c" data-id="${i}" data-key="alpha" data-type="num" min="0" max="100" step="1" value="${item.alpha}" style="flex:1"><span class="val-badge" id="val_c_${i}_alpha">${item.alpha}%</span></div>
                 </div>
-                <div class="pos-row" style="margin-top:6px">
-                    <button type="button" class="c-btn" data-center="x" data-pfx="c" data-id="${i}" title="横中央に配置">C</button>
-                    <label>X</label><input type="range" data-pfx="c" data-id="${i}" data-key="x" data-type="num" min="-1280" max="1280" step="1" value="${Math.round(item.x)}">
-                    <button type="button" class="c-btn" data-center="y" data-pfx="c" data-id="${i}" title="縦中央に配置">C</button>
-                    <label>Y</label><input type="range" data-pfx="c" data-id="${i}" data-key="y" data-type="num" min="-720" max="720" step="1" value="${Math.round(item.y)}">
+                <div style="display:flex;flex-direction:column;gap:4px;margin-top:6px;">
+                    <div class="pos-row"><button type="button" class="c-btn" data-center="x" data-pfx="c" data-id="${i}" title="横中央に配置">中央揃え</button><label>X</label><input type="range" data-pfx="c" data-id="${i}" data-key="x" data-type="num" min="-1280" max="1280" step="1" value="${Math.round(item.x)}" style="flex:1;"><span class="val-badge" id="val_c_${i}_x">${Math.round(item.x)}</span></div>
+                    <div class="pos-row"><button type="button" class="c-btn" data-center="y" data-pfx="c" data-id="${i}" title="縦中央に配置">中央揃え</button><label>Y</label><input type="range" data-pfx="c" data-id="${i}" data-key="y" data-type="num" min="-720" max="720" step="1" value="${Math.round(item.y)}" style="flex:1;"><span class="val-badge" id="val_c_${i}_y">${Math.round(item.y)}</span></div>
                 </div>
                 <div class="pos-row" style="margin-top:6px">
                     <div style="display:flex;align-items:center;gap:4px; width:100%"><label class="drag-val" data-pfx="c" data-id="${i}" data-key="sw" style="margin:0;white-space:nowrap;cursor:ew-resize;" title="左右にドラッグして値を変えられます">↔ サイズ</label><input type="range" data-pfx="c" data-id="${i}" data-key="sw" data-type="num" min="10" max="2500" step="1" value="${Math.round(item.w)}" style="flex:1"></div>
                 </div>
+                <div class="row" style="margin-top:6px"><label>ブレンド</label>${bmSelect('c',i,item)}</div>
             </div>`;
             cardHtml += `</div>`;
-            
+
             htmlBlocks.push(cardHtml);
         });
         
@@ -1065,6 +1153,9 @@ function buildSidebar(){
                         <div style="display:flex;align-items:center;gap:4px;flex:1"><label style="margin:0;white-space:nowrap">濃さ</label><input type="range" id="slAlpha" min="0" max="100" step="1" value="${S.slAlpha}"><span class="val-badge" id="val_slAlpha">${S.slAlpha}%</span></div>
                     </div>
                     <div class="row">
+                        <div style="display:flex;align-items:center;gap:4px;flex:1"><label style="margin:0;white-space:nowrap">太さ</label><input type="range" id="slWidth" min="1" max="20" step="1" value="${S.slWidth!==undefined?S.slWidth:3}"><span class="val-badge" id="val_slWidth">${S.slWidth!==undefined?S.slWidth:3}</span></div>
+                    </div>
+                    <div class="row">
                         <div style="display:flex;align-items:center;gap:4px;flex:1"><label style="margin:0;white-space:nowrap">中心X</label><input type="range" id="slCenterX" min="0" max="1280" step="1" value="${S.slCenterX}"><span class="val-badge" id="val_slCenterX">${S.slCenterX}px</span></div>
                         <div style="display:flex;align-items:center;gap:4px;flex:1"><label style="margin:0;white-space:nowrap">中心Y</label><input type="range" id="slCenterY" min="0" max="720" step="1" value="${S.slCenterY}"><span class="val-badge" id="val_slCenterY">${S.slCenterY}px</span></div>
                     </div>
@@ -1088,18 +1179,27 @@ function buildSidebar(){
 function processLoadedData(data){
     S.rows=(data.rows||[]).map(r=>({...makeRow(),...r}));
     S.shapes=(data.shapes||[]).map(s=>({...makeShape(),...s}));
-    S.bgDarken=data.bgDarken||0;S.speedLine=data.speedLine||false;S.slColor=data.slColor||'#ffffff';S.slCount=data.slCount||150;S.slAlpha=data.slAlpha||50;S.slCenterX=data.slCenterX!==undefined?data.slCenterX:640;S.slCenterY=data.slCenterY!==undefined?data.slCenterY:360;S.vignette=data.vignette!==undefined?data.vignette:false;if(document.getElementById('vignetteToggle'))document.getElementById('vignetteToggle').checked=S.vignette;S.chars=[]; 
+    S.bgDarken=data.bgDarken||0;S.speedLine=data.speedLine||false;S.slColor=data.slColor||'#ffffff';S.slCount=data.slCount||150;S.slAlpha=data.slAlpha||50;S.slWidth=data.slWidth!==undefined?data.slWidth:3;S.slCenterX=data.slCenterX!==undefined?data.slCenterX:640;S.slCenterY=data.slCenterY!==undefined?data.slCenterY:360;S.vignette=data.vignette!==undefined?data.vignette:false;if(document.getElementById('vignetteToggle'))document.getElementById('vignetteToggle').checked=S.vignette;S.chars=[]; 
+    // IDカウンターを保存データの最大値+1にリセット（削除&追加時に番号が飛ぶのを防ぐ）
+    nextRowId = S.rows.length>0 ? Math.max(...S.rows.map(r=>r.id))+1 : 1;
+    nextShapeId = S.shapes.length>0 ? Math.max(...S.shapes.map(s=>s.id))+1 : 1;
     
     let targetCount=0; let loadedCount=0;
     if(data.chars && data.chars.length>0) targetCount += data.chars.filter(c=>c.imgSrc).length;
     if(data.rows && data.rows.length>0) targetCount += data.rows.filter(r=>r.textureSrc).length;
     
-    const checkDone = () => { loadedCount++; if(loadedCount>=targetCount){ buildSidebar(); requestRender(); }};
+    const checkDone = () => { loadedCount++; if(loadedCount>=targetCount){ 
+        if(S.chars.length>0) nextCharId = Math.max(...S.chars.map(c=>c.id))+1;
+        buildSidebar(); requestRender(); }};
     
     if(targetCount===0){buildSidebar();requestRender();return}
     
     if(data.chars){
-        data.chars.forEach(c=>{if(!c.imgSrc)return;const img=new Image();img.onload=()=>{let newChar={...makeChar(img,c.imgSrc,c.layerType||'char'),...c,img:img,_fadeCvs:null,_outlineCvs:null,_outlineCacheKey:null};S.chars.push(newChar);checkDone();};img.onerror=checkDone;img.src=c.imgSrc})
+        data.chars.forEach(c=>{
+            if(c.layerType==='fill'){S.chars.push({...makeFill(),...c});return;}
+            if(!c.imgSrc)return;
+            const img=new Image();img.onload=()=>{let newChar={...makeChar(img,c.imgSrc,c.layerType||'char'),...c,img:img,_fadeCvs:null,_outlineCvs:null,_outlineCacheKey:null};S.chars.push(newChar);checkDone();};img.onerror=checkDone;img.src=c.imgSrc;
+        });
     }
     S.rows.forEach(r=>{
         if(r.textureSrc){ let img=new Image(); img.onload=()=>{r.texture=img;checkDone();}; img.onerror=checkDone; img.src=r.textureSrc;}
@@ -1234,7 +1334,13 @@ function bindGlobalEvents(){
             const id = +e.target.dataset.id;
             const item = getItem(pfx, id);
             if(item && pfx === 't') {
-                item.name = item.textL || item.textR || `テキスト ${id}`;
+                if(!item.textL && !item.textC && !item.textR) {
+                    const sortedRows = S.rows.slice().sort((a,b)=>b.z-a.z);
+                    const rowPos = sortedRows.findIndex(r=>r.id===id)+1;
+                    item.name = `テキスト ${rowPos}`;
+                } else {
+                    item.name = item.textL || item.textC || item.textR;
+                }
                 const titleEl = e.target.closest('.sec').querySelector('.sec-title');
                 if(titleEl) titleEl.textContent = item.name;
             }
@@ -1244,6 +1350,7 @@ function bindGlobalEvents(){
     sb.addEventListener('input',e=>{
         if(e.target.id==='bgDk'){S.bgDarken=+e.target.value;document.getElementById('dkVal').textContent=S.bgDarken+'%';requestRender();return}
         if(e.target.id==='slColor'){S.slColor=e.target.value;requestRender();return}
+        if(e.target.id==='slWidth'){S.slWidth=+e.target.value;slCanvas=null;document.getElementById('val_slWidth').textContent=S.slWidth;requestRender();return}
         if(e.target.id==='slCount'){S.slCount=+e.target.value;document.getElementById('val_slCount').textContent=S.slCount;requestRender();return}
         if(e.target.id==='slAlpha'){S.slAlpha=+e.target.value;document.getElementById('val_slAlpha').textContent=S.slAlpha+'%';requestRender();return}
         if(e.target.id==='slCenterX'){S.slCenterX=+e.target.value;document.getElementById('val_slCenterX').textContent=S.slCenterX+'px';requestRender();return}
@@ -1260,10 +1367,102 @@ function bindGlobalEvents(){
                 item[key]=val;el.value=val;
             }else{item[key]=val}
             const b=el.nextElementSibling?.classList.contains('val-badge') ? el.nextElementSibling : document.getElementById(`val_${pfx}_${id}_${key}`);
-            if(b){let v=val;if(key==='scaleY'||key==='tagScale')v+='x';else if(key==='angle')v+='°';else if(key==='spacing'||key==='blur'||key==='outlineWidth'||key==='shadowX'||key==='shadowY'||key==='innerW'||key==='outerW'||key==='txBlur'||key==='txOffsetX'||key==='txOffsetY')v+='px';else if(key==='alpha'||key==='zabAlpha'||key==='brightness'||key==='contrast'||key==='saturation'||key.startsWith('trim')||key==='fadeB'||key==='txBrightness'||key==='txContrast'||key==='txSaturation'||key==='txAlpha'||key==='txScale')v+='%';b.textContent=v}
+            if(b){let v=val;if(key==='scaleY'||key==='tagScale')v+='x';else if(key==='angle'||key==='gradAngle')v+='°';else if(key==='spacing'||key==='blur'||key==='outlineWidth'||key==='shadowX'||key==='shadowY'||key==='shadowBlur'||key==='innerW'||key==='outerW'||key==='txBlur'||key==='txOffsetX'||key==='txOffsetY')v+='px';else if(key==='alpha'||key==='zabAlpha'||key==='brightness'||key==='contrast'||key==='saturation'||key.startsWith('trim')||key==='fadeB'||key==='txBrightness'||key==='txContrast'||key==='txSaturation'||key==='txAlpha'||key==='txScale')v+='%';b.textContent=v}
         }else{item[key]=el.value}requestRender()
     });
     sb.addEventListener('change',e=>{ saveHistory(); });
+    let _layerDragSrc=null;
+    sb.addEventListener('dragstart',e=>{
+        const header=e.target.closest('.sec-h[draggable]');
+        if(!header){e.preventDefault();return;}
+        if(e.target.closest('button,input,select,label,textarea')){e.preventDefault();return;}
+        const card=header.closest('.sec[data-pfx]');
+        if(!card)return;
+        _layerDragSrc={pfx:card.dataset.pfx,id:+card.dataset.id};
+        card.classList.add('dragging');
+        e.dataTransfer.effectAllowed='move';
+    });
+    sb.addEventListener('dragend',e=>{
+        sb.querySelectorAll('.sec.dragging,.sec.drag-over').forEach(el=>el.classList.remove('dragging','drag-over'));
+        _layerDragSrc=null;
+    });
+    sb.addEventListener('dragover',e=>{
+        const card=e.target.closest('.sec[data-pfx]');
+        if(!card||!_layerDragSrc)return;
+        e.preventDefault();
+        sb.querySelectorAll('.sec.drag-over').forEach(el=>el.classList.remove('drag-over'));
+        card.classList.add('drag-over');
+    });
+    sb.addEventListener('dragleave',e=>{
+        const card=e.target.closest('.sec[data-pfx]');
+        if(card&&!card.contains(e.relatedTarget))card.classList.remove('drag-over');
+    });
+    sb.addEventListener('drop',e=>{
+        e.preventDefault();
+        const targetCard=e.target.closest('.sec[data-pfx]');
+        if(!targetCard||!_layerDragSrc)return;
+        const tPfx=targetCard.dataset.pfx,tId=+targetCard.dataset.id;
+        if(_layerDragSrc.pfx===tPfx&&_layerDragSrc.id===tId)return;
+        const srcItem=getItem(_layerDragSrc.pfx,_layerDragSrc.id);
+        const tgtItem=getItem(tPfx,tId);
+        if(!srcItem||!tgtItem)return;
+        const srcIsBg=srcItem.layerType==='bg'||srcItem.layerType==='fill',tgtIsBg=tgtItem.layerType==='bg'||tgtItem.layerType==='fill';
+        if(srcIsBg!==tgtIsBg)return;
+        let targetList=[];
+        if(srcIsBg){
+            S.chars.forEach(c=>{if(c.layerType==='bg'||c.layerType==='fill')targetList.push({pfx:'c',id:c.id,item:c});});
+        }else{
+            S.rows.forEach(r=>targetList.push({pfx:'t',id:r.id,item:r}));
+            S.chars.forEach(c=>{if(c.layerType!=='bg'&&c.layerType!=='fill')targetList.push({pfx:'c',id:c.id,item:c});});
+            S.shapes.forEach(s=>targetList.push({pfx:'s',id:s.id,item:s}));
+        }
+        targetList.sort((a,b)=>b.item.z-a.item.z);
+        const srcIdx=targetList.findIndex(l=>l.pfx===_layerDragSrc.pfx&&l.id===_layerDragSrc.id);
+        const tgtIdx=targetList.findIndex(l=>l.pfx===tPfx&&l.id===tId);
+        if(srcIdx===-1||tgtIdx===-1)return;
+        const srcZ=targetList[srcIdx].item.z;
+        if(srcIdx<tgtIdx){for(let k=srcIdx;k<tgtIdx;k++)targetList[k].item.z=targetList[k+1].item.z;}
+        else{for(let k=srcIdx;k>tgtIdx;k--)targetList[k].item.z=targetList[k-1].item.z;}
+        targetList[tgtIdx].item.z=srcZ;
+        sb.querySelectorAll('.sec.drag-over,.sec.dragging').forEach(el=>el.classList.remove('drag-over','dragging'));
+        _layerDragSrc=null;
+        buildSidebar();requestRender();saveHistory();
+    });
+    sb.addEventListener('dblclick',e=>{
+        const badge=e.target.closest('.val-badge');
+        if(!badge)return;
+        const rangeEl=badge.previousElementSibling;
+        if(!rangeEl||rangeEl.tagName!=='INPUT')return;
+        e.stopPropagation();
+        const min=Number(rangeEl.min||-9999),max=Number(rangeEl.max||9999),step=Number(rangeEl.step||1);
+        const curVal=Number(rangeEl.value);
+        const badgeId=badge.id;
+        const inp=document.createElement('input');
+        inp.type='number';inp.value=curVal;inp.min=min;inp.max=max;inp.step=step;
+        inp.style.cssText='width:56px;font-size:11px;padding:2px 4px;background:var(--bg);border:1px solid var(--sec);border-radius:4px;color:var(--text);outline:none;';
+        badge.replaceWith(inp);
+        inp.focus();inp.select();
+        let applied=false;
+        const apply=()=>{
+            if(applied)return;applied=true;
+            const val=Math.min(max,Math.max(min,isNaN(+inp.value)?curVal:+inp.value));
+            rangeEl.value=val;
+            rangeEl.dispatchEvent(new Event('input',{bubbles:true}));
+            rangeEl.dispatchEvent(new Event('change',{bubbles:true}));
+            const newBadge=document.createElement('span');
+            newBadge.className='val-badge';if(badgeId)newBadge.id=badgeId;
+            const key=rangeEl.dataset.key||'';
+            let display=val;
+            if(key==='scaleY'||key==='tagScale')display+='x';
+            else if(key==='angle')display+='°';
+            else if(['spacing','blur','outlineWidth','shadowX','shadowY','innerW','outerW','txBlur','txOffsetX','txOffsetY'].includes(key))display+='px';
+            else if(['alpha','zabAlpha','brightness','contrast','saturation','fadeB','txBrightness','txContrast','txSaturation','txAlpha','txScale'].includes(key)||key.startsWith('trim'))display+='%';
+            newBadge.textContent=display;
+            if(inp.parentNode)inp.replaceWith(newBadge);
+        };
+        inp.addEventListener('keydown',ev=>{if(ev.key==='Enter'){apply();}if(ev.key==='Escape'){inp.replaceWith(badge);}});
+        inp.addEventListener('blur',apply);
+    });
     sb.addEventListener('click',async e=>{
         let saved=false;
 
@@ -1319,23 +1518,23 @@ function bindGlobalEvents(){
             const vis=e.target.closest('[data-vis]');if(vis){const item=getItem(vis.dataset.vis,+vis.dataset.id);if(item){item.visible=item.visible===false?true:false;activeItem=null;buildSidebar();requestRender();saveHistory();}}
             const del=e.target.closest('[data-del]');
             if(del){
-                if(del.dataset.del==='text')S.rows=S.rows.filter(r=>r.id!==+del.dataset.id);
-                else if(del.dataset.del==='shape')S.shapes=S.shapes.filter(s=>s.id!==+del.dataset.id);
-                else S.chars=S.chars.filter(c=>c.id!==+del.dataset.id);
+                if(del.dataset.del==='text'){S.rows=S.rows.filter(r=>r.id!==+del.dataset.id);nextRowId=S.rows.length>0?Math.max(...S.rows.map(r=>r.id))+1:1;}
+                else if(del.dataset.del==='shape'){S.shapes=S.shapes.filter(s=>s.id!==+del.dataset.id);nextShapeId=S.shapes.length>0?Math.max(...S.shapes.map(s=>s.id))+1:1;}
+                else{S.chars=S.chars.filter(c=>c.id!==+del.dataset.id);nextCharId=S.chars.length>0?Math.max(...S.chars.map(c=>c.id))+1:1;}
                 activeItem=null;buildSidebar();requestRender();saveHistory();
             }
             const dup=e.target.closest('[data-dup]'); 
             if(dup){ 
                 if(dup.dataset.dup==='text'){const target=S.rows.find(r=>r.id===+dup.dataset.id);if(target){const newRow=JSON.parse(JSON.stringify(target));newRow.id=nextRowId++;newRow.y+=40;newRow.z=globalZ++;newRow.texture=target.texture;S.rows.push(newRow);activeItem={pfx:'t',id:newRow.id};buildSidebar();requestRender();saveHistory();}} 
                 else if(dup.dataset.dup==='shape'){const target=S.shapes.find(s=>s.id===+dup.dataset.id);if(target){const newShape=JSON.parse(JSON.stringify(target));newShape.id=nextShapeId++;newShape.x+=40;newShape.y+=40;newShape.z=globalZ++;S.shapes.push(newShape);activeItem={pfx:'s',id:newShape.id};buildSidebar();requestRender();saveHistory();}}
-                else if(dup.dataset.dup==='char'){const target=S.chars.find(c=>c.id===+dup.dataset.id);if(target){const newChar=JSON.parse(JSON.stringify(target));newChar.id=nextCharId++;newChar.x+=40;newChar.y+=40;newChar.z=globalZ++;newChar.img=target.img;newChar._fadeCvs=null;newChar._outlineCvs=null;S.chars.push(newChar);activeItem={pfx:'c',id:newChar.id};buildSidebar();requestRender();saveHistory();}} 
+                else if(dup.dataset.dup==='char'){const target=S.chars.find(c=>c.id===+dup.dataset.id);if(target){const newChar=JSON.parse(JSON.stringify(target));newChar.id=nextCharId++;if(target.layerType==='fill'){newChar.z=globalBgZ--;}else{newChar.x+=40;newChar.y+=40;newChar.z=(target.layerType==='bg')?globalBgZ--:globalZ++;}newChar.img=target.img;newChar._fadeCvs=null;newChar._outlineCvs=null;S.chars.push(newChar);activeItem={pfx:'c',id:newChar.id};buildSidebar();requestRender();saveHistory();}} 
             }
             const resetBtn = e.target.closest('[data-reset]');
             if(resetBtn) {
                 const pfx = resetBtn.dataset.pfx; const id = +resetBtn.dataset.id;
                 const item = getItem(pfx, id);
                 if(item && confirm('装飾や設定を初期化しますか？')){
-                    if(pfx==='t') { const def=makeRow(); Object.keys(def).forEach(k=>{ if(!['id','z','textL','textR','textureSrc','texture','name'].includes(k)) item[k]=def[k]; }); } 
+                    if(pfx==='t') { const def=makeRow(); Object.keys(def).forEach(k=>{ if(!['id','z','textL','textC','textR','textureSrc','texture','name'].includes(k)) item[k]=def[k]; }); } 
                     else if(pfx==='c') { const def=makeChar({width:1,height:1}, null, item.layerType); Object.keys(def).forEach(k=>{ if(!['id','z','img','imgSrc','layerType','w','h','x','y','name'].includes(k)) item[k]=def[k]; }); }
                     else if(pfx==='s') { const def=makeShape(); Object.keys(def).forEach(k=>{ if(!['id','z','shapeType','w','h','x','y','name'].includes(k)) item[k]=def[k]; }); }
                     buildSidebar(); requestRender(); saveHistory();
@@ -1345,14 +1544,14 @@ function bindGlobalEvents(){
             if(cb){
                 const item=getItem(cb.dataset.pfx,+cb.dataset.id);
                 if(item){
-                    if(cb.dataset.center==='x'){if(cb.dataset.pfx==='t'){const layL=buildLayout(item.textL,0,0,item);const layR=buildLayout(item.textR,0,0,item);const totalW=item.vertical?(Math.max(layL.w,layR.w)||item.size):(layL.w+layR.w);item.x=640-totalW/2;}else if(cb.dataset.pfx==='s'){item.x=640-item.w/2}else{const b=getCharBounds(item);item.x+=640-(b.x+b.w/2)}}
-                    if(cb.dataset.center==='y'){if(cb.dataset.pfx==='t'){const layL=buildLayout(item.textL,0,0,item);const gap=(layL.h>0&&item.textR)?item.size*0.2:0;const layR=buildLayout(item.textR,0,item.vertical?layL.h+gap:0,item);const totalH=item.vertical?(layL.h+gap+layR.h):(item.size*Math.max(1,item.tagScale||1.25));item.y=item.vertical?(360-totalH/2):(360+totalH/2)}else if(cb.dataset.pfx==='s'){item.y=360-item.h/2}else{const b=getCharBounds(item);item.y+=360-(b.y+b.h/2)}}
+                    if(cb.dataset.center==='x'){if(cb.dataset.pfx==='t'){const layL=buildLayout(item.textL,0,0,item);const layC=buildLayout(item.textC,0,0,item);const layR=buildLayout(item.textR,0,0,item);const totalW=item.vertical?(Math.max(layL.w,layC.w,layR.w)||item.size):(layL.w+layC.w+layR.w);item.x=640-totalW/2;}else if(cb.dataset.pfx==='s'){item.x=640-item.w/2}else{const b=getCharBounds(item);item.x+=640-(b.x+b.w/2)}}
+                    if(cb.dataset.center==='y'){if(cb.dataset.pfx==='t'){const layL=buildLayout(item.textL,0,0,item);const gapLC=(layL.h>0&&item.textC)?item.size*0.2:0;const layC=buildLayout(item.textC,0,item.vertical?layL.h+gapLC:0,item);const gapCR=((layL.h+layC.h)>0&&item.textR)?item.size*0.2:0;const layR=buildLayout(item.textR,0,item.vertical?layL.h+gapLC+layC.h+gapCR:0,item);const totalH=item.vertical?(layL.h+gapLC+layC.h+gapCR+layR.h):(item.size*Math.max(1,item.tagScale||1.25));item.y=item.vertical?(360-totalH/2):(360+totalH/2)}else if(cb.dataset.pfx==='s'){item.y=360-item.h/2}else{const b=getCharBounds(item);item.y+=360-(b.y+b.h/2)}}
                     requestRender();buildSidebar();saveHistory();
                 }
             }
             const txc=e.target.closest('[data-txcenter]');
             if(txc){const r=getItem('t',+txc.dataset.id);if(r){if(txc.dataset.txcenter==='x')r.txOffsetX=0;else r.txOffsetY=0;requestRender();buildSidebar();saveHistory();}}
-            const tgl=e.target.closest('[data-toggle]');if(tgl){const pfx=tgl.dataset.pfx;const r=getItem(pfx,+tgl.dataset.id);if(r){r[tgl.dataset.toggle]=!r[tgl.dataset.toggle];requestRender();buildSidebar();saveHistory();}}
+            const tgl=e.target.closest('[data-toggle]');if(tgl){const pfx=tgl.dataset.pfx;const r=getItem(pfx,+tgl.dataset.id);if(r){const key=tgl.dataset.toggle;if(key==='fillType'){r.fillType=r.fillType==='gradient'?'solid':'gradient';}else{r[key]=!r[key];}requestRender();buildSidebar();saveHistory();}}
             const tail=e.target.closest('[data-tail]');if(tail){const r=getItem('t',+tail.dataset.id);if(r){r.tail=tail.dataset.tail;requestRender();buildSidebar();saveHistory();}}
             const cTxtr=e.target.closest('button[data-cleartxtr]');if(cTxtr){const r=getItem('t',+cTxtr.dataset.id);if(r){r.texture=null;r.textureSrc=null;buildSidebar();requestRender();saveHistory();}}
         }
@@ -1384,6 +1583,7 @@ function bindGlobalEvents(){
 
     document.getElementById('headAddText').addEventListener('click', () => { S.rows.push(makeRow({x:30,y:300})); buildSidebar(); requestRender(); saveHistory(); });
     document.getElementById('headAddShape').addEventListener('click', () => { S.shapes.push(makeShape()); buildSidebar(); requestRender(); saveHistory(); });
+    document.getElementById('headAddFill').addEventListener('click', () => { S.chars.push(makeFill()); buildSidebar(); requestRender(); saveHistory(); });
 
     document.addEventListener('mousedown', e => {
         if (e.target.classList.contains('drag-val')) {
@@ -1401,7 +1601,7 @@ function bindGlobalEvents(){
                 else { item[key] = newVal; }
                 if (input) input.value = newVal;
                 const b = document.getElementById(`val_${pfx}_${id}_${key}`) || document.querySelector(`span.val-badge[id="val_${pfx}_${id}_${key}"]`) || e.target.nextElementSibling;
-                if(b && b.classList.contains('val-badge')){let v=newVal;if(key==='scaleY'||key==='tagScale')v+='x';else if(key==='angle')v+='°';else if(key==='spacing'||key==='blur'||key==='outlineWidth'||key==='shadowX'||key==='shadowY'||key==='innerW'||key==='outerW')v+='px';else if(key==='alpha'||key==='zabAlpha'||key==='brightness'||key==='contrast'||key==='saturation'||key.startsWith('trim')||key==='fadeB')v+='%';b.textContent=v}
+                if(b && b.classList.contains('val-badge')){let v=newVal;if(key==='scaleY'||key==='tagScale')v+='x';else if(key==='angle'||key==='gradAngle')v+='°';else if(key==='spacing'||key==='blur'||key==='outlineWidth'||key==='shadowX'||key==='shadowY'||key==='innerW'||key==='outerW')v+='px';else if(key==='alpha'||key==='zabAlpha'||key==='brightness'||key==='contrast'||key==='saturation'||key.startsWith('trim')||key==='fadeB')v+='%';b.textContent=v}
                 requestRender();
             };
             const onUp = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); saveHistory(); };
@@ -1471,7 +1671,7 @@ function bindGlobalEvents(){
     });
 
     document.getElementById('resetAllBtn').addEventListener('click', () => {
-        if(confirm('すべて削除して初期状態に戻しますか？')) { S.rows=[]; S.chars=[]; S.shapes=[]; S.speedLine=false; S.bgDarken=0; S.vignette=false; S.slColor='#ffffff'; S.slCount=150; S.slAlpha=50; S.slCenterX=640; S.slCenterY=360; if(document.getElementById('vignetteToggle')) document.getElementById('vignetteToggle').checked=false; activeItem=null; buildSidebar(); requestRender(); saveHistory(); }
+        if(confirm('すべて削除して初期状態に戻しますか？')) { S.rows=[]; S.chars=[]; S.shapes=[]; S.speedLine=false; S.bgDarken=0; S.vignette=false; S.slColor='#ffffff'; S.slCount=150; S.slAlpha=50; S.slWidth=3; S.slCenterX=640; S.slCenterY=360; if(document.getElementById('vignetteToggle')) document.getElementById('vignetteToggle').checked=false; activeItem=null; buildSidebar(); requestRender(); saveHistory(); }
     });
 
     document.getElementById('undoBtn').addEventListener('click',undo);
@@ -1497,14 +1697,69 @@ function bindGlobalEvents(){
     });
 
     document.getElementById('mockupToggle').addEventListener('change',e=>document.getElementById('ytMockup').classList.toggle('active',e.target.checked));
-    document.getElementById('savePresetBtn').addEventListener('click',()=>{ const b=new Blob([JSON.stringify({rows:S.rows.map(r=>({...r,texture:null})),chars:S.chars.map(c=>({...c,img:null})),shapes:S.shapes,bgDarken:S.bgDarken,speedLine:S.speedLine,slColor:S.slColor,slCount:S.slCount,slAlpha:S.slAlpha,slCenterX:S.slCenterX,slCenterY:S.slCenterY,vignette:S.vignette})],{type:'application/json'}); const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='thumb_preset.json';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000); });
+    document.getElementById('savePresetBtn').addEventListener('click',()=>{ const b=new Blob([JSON.stringify({rows:S.rows.map(r=>({...r,texture:null})),chars:S.chars.map(c=>({...c,img:null})),shapes:S.shapes,bgDarken:S.bgDarken,speedLine:S.speedLine,slColor:S.slColor,slCount:S.slCount,slAlpha:S.slAlpha,slWidth:S.slWidth,slCenterX:S.slCenterX,slCenterY:S.slCenterY,vignette:S.vignette})],{type:'application/json'}); const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='thumb_preset.json';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000); });
     document.getElementById('loadPresetBtn').addEventListener('click',()=>document.getElementById('loadPresetFile').click());
     document.getElementById('loadPresetFile').addEventListener('change',e=>{ const file=e.target.files[0];if(!file)return;const reader=new FileReader(); reader.onload=ev=>{try{const data=JSON.parse(ev.target.result);processLoadedData(data);saveHistory();}catch(err){alert('エラー')}};reader.readAsText(file);e.target.value=''; });
+    // カラーパレット
+    document.addEventListener('mousedown', e => {
+        const inp = e.target.closest('input[type="color"]');
+        if (inp) _lastColorInput = inp;
+    });
+    document.addEventListener('click', e => {
+        const swatch = e.target.closest('.pal-swatch');
+        if (swatch && _lastColorInput) { _lastColorInput.value = swatch.dataset.palIdx !== undefined ? savedPalette[+swatch.dataset.palIdx] : swatch.title; _lastColorInput.dispatchEvent(new Event('input',{bubbles:true})); _lastColorInput.dispatchEvent(new Event('change',{bubbles:true})); return; }
+        const palAdd = e.target.closest('#palAddBtn');
+        if (palAdd) {
+            if (!_lastColorInput) return;
+            const col = _lastColorInput.value;
+            if (!savedPalette.includes(col)) { savedPalette.push(col); if(savedPalette.length>20) savedPalette.shift(); localStorage.setItem('my_thumb_palette', JSON.stringify(savedPalette)); buildSidebar(); }
+        }
+    });
+
     document.getElementById('dlPngBtn').addEventListener('click',()=>{const a=document.createElement('a');a.href=exportCanvas().toDataURL('image/png');a.download=(document.getElementById('dlFileName').value||'thumbnail')+'.png';a.click()});
     document.getElementById('dlJpegBtn').addEventListener('click',()=>{const a=document.createElement('a');a.href=exportCanvas().toDataURL('image/jpeg',0.95);a.download=(document.getElementById('dlFileName').value||'thumbnail')+'.jpg';a.click()});
 
     cv.addEventListener('mousedown',onDown);cv.addEventListener('mousemove',onMove);cv.addEventListener('mouseup',()=>{if(drag)saveHistory();drag=null;snapX=null;snapY=null;requestRender()});cv.addEventListener('mouseleave',()=>{if(drag)saveHistory();drag=null;snapX=null;snapY=null;requestRender()});cv.addEventListener('wheel',onWheel,{passive:false});
     
+    // ドラッグ＆ドロップでキャラ画像を追加
+    let _dragCounter = 0;
+    const _dropOverlay = document.getElementById('dropOverlay');
+    window.addEventListener('dragenter', e => {
+        if ([...e.dataTransfer.types].includes('Files')) {
+            _dragCounter++;
+            _dropOverlay.classList.add('active');
+            e.preventDefault();
+        }
+    });
+    window.addEventListener('dragover', e => {
+        if ([...e.dataTransfer.types].includes('Files')) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+        }
+    });
+    window.addEventListener('dragleave', e => {
+        _dragCounter--;
+        if (_dragCounter <= 0) { _dragCounter = 0; _dropOverlay.classList.remove('active'); }
+    });
+    window.addEventListener('drop', e => {
+        e.preventDefault();
+        _dragCounter = 0;
+        _dropOverlay.classList.remove('active');
+        const files = [...e.dataTransfer.files].filter(f => f.type.startsWith('image/'));
+        if (files.length === 0) return;
+        files.forEach(f => {
+            const layerName = f.name.replace(/\.[^/.]+$/, '');
+            loadImg(f, img => {
+                let c = makeChar(img, img.src, 'char');
+                c.name = layerName;
+                S.chars.push(c);
+                buildSidebar();
+                requestRender();
+                saveHistory();
+            });
+        });
+    });
+
     window.addEventListener('keydown', e => {
         const tag = e.target.tagName; if (tag === 'INPUT' || tag === 'TEXTAREA') return; if(document.querySelector('.modal-overlay.active')) return;
         let k = e.key; if(['Control','Shift','Alt','Meta','Process','Dead'].includes(k)) return; if(k === ' ') k = 'Space'; else if(k.length === 1) k = k.toUpperCase();
@@ -1513,7 +1768,7 @@ function bindGlobalEvents(){
         if(pressedStr===SC.undo){e.preventDefault();undo();return;}
         if(pressedStr===SC.redo){e.preventDefault();redo();return;}
         if(pressedStr===SC.dup && activeItem){ e.preventDefault(); if(activeItem.pfx==='t'){ const t=S.rows.find(r=>r.id===activeItem.id); if(t){const n=JSON.parse(JSON.stringify(t));n.id=nextRowId++;n.y+=40;n.z=globalZ++;n.texture=t.texture;S.rows.push(n);activeItem={pfx:'t',id:n.id};buildSidebar();requestRender();saveHistory();} } else if(activeItem.pfx==='s'){ const t=S.shapes.find(s=>s.id===activeItem.id); if(t){const n=JSON.parse(JSON.stringify(t));n.id=nextShapeId++;n.x+=40;n.y+=40;n.z=globalZ++;S.shapes.push(n);activeItem={pfx:'s',id:n.id};buildSidebar();requestRender();saveHistory();} } else { const t=S.chars.find(c=>c.id===activeItem.id); if(t){const n=JSON.parse(JSON.stringify(t));n.id=nextCharId++;n.x+=40;n.y+=40;n.z=globalZ++;n.img=t.img;n._fadeCvs=null;n._outlineCvs=null;n._outlineCacheKey=null;S.chars.push(n);activeItem={pfx:'c',id:n.id};buildSidebar();requestRender();saveHistory();} } }
-        if((pressedStr===SC.del || (SC.del==='Delete'&&pressedStr==='Backspace') || (SC.del==='Backspace'&&pressedStr==='Delete')) && activeItem){ e.preventDefault(); if(activeItem.pfx==='t') S.rows=S.rows.filter(r=>r.id!==activeItem.id); else if(activeItem.pfx==='s') S.shapes=S.shapes.filter(s=>s.id!==activeItem.id); else S.chars=S.chars.filter(c=>c.id!==activeItem.id); activeItem=null; buildSidebar(); requestRender(); saveHistory(); }
+        if((pressedStr===SC.del || (SC.del==='Delete'&&pressedStr==='Backspace') || (SC.del==='Backspace'&&pressedStr==='Delete')) && activeItem){ e.preventDefault(); if(activeItem.pfx==='t'){S.rows=S.rows.filter(r=>r.id!==activeItem.id);nextRowId=S.rows.length>0?Math.max(...S.rows.map(r=>r.id))+1:1;}else if(activeItem.pfx==='s'){S.shapes=S.shapes.filter(s=>s.id!==activeItem.id);nextShapeId=S.shapes.length>0?Math.max(...S.shapes.map(s=>s.id))+1:1;}else{S.chars=S.chars.filter(c=>c.id!==activeItem.id);nextCharId=S.chars.length>0?Math.max(...S.chars.map(c=>c.id))+1:1;} activeItem=null; buildSidebar(); requestRender(); saveHistory(); }
     });
 }
 function positionDropdown(trigger, opts) {
@@ -1550,7 +1805,10 @@ function onMove(e){
     if(item){ 
         item.x=p.x-drag.ox;item.y=p.y-drag.oy; 
         const cx=640,cy=360;let ix=item.x,iy=item.y;
-        if(drag.pfx==='t'){ const layL=buildLayout(item.textL,0,0,item); const layR=buildLayout(item.textR,0,0,item); const totalW=item.vertical?(Math.max(layL.w,layR.w)||item.size):(layL.w+layR.w); const totalH=item.vertical?(layL.h+(layL.h>0&&item.textR?item.size*0.2:0)+layR.h):(item.size*Math.max(1,item.tagScale||1.25)); ix=item.x+totalW/2;iy=item.vertical?(item.y+totalH/2):(item.y-totalH/2); } 
+        if(drag.pfx==='t'){ 
+            if(!drag._tw){ const layL=buildLayout(item.textL,0,0,item);const layC=buildLayout(item.textC,0,0,item);const layR=buildLayout(item.textR,0,0,item);drag._tw=item.vertical?(Math.max(layL.w,layC.w,layR.w)||item.size):(layL.w+layC.w+layR.w);drag._th=item.vertical?(layL.h+(layL.h>0&&item.textC?item.size*0.2:0)+layC.h+((layL.h+layC.h)>0&&item.textR?item.size*0.2:0)+layR.h):(item.size*Math.max(1,item.tagScale||1.25)); }
+            ix=item.x+drag._tw/2;iy=item.vertical?(item.y+drag._th/2):(item.y-drag._th/2);
+        } 
         else if(drag.pfx==='s'){ix=item.x+item.w/2;iy=item.y+item.h/2;}
         else{const b=getCharBounds(item);ix=b.x+b.w/2;iy=b.y+b.h/2}
         if(Math.abs(ix-cx)<15){item.x-=(ix-cx);snapX=cx}else{snapX=null} if(Math.abs(iy-cy)<15){item.y-=(iy-cy);snapY=cy}else{snapY=null}
@@ -1559,13 +1817,14 @@ function onMove(e){
         if(xEl)xEl.value=Math.round(item.x);if(yEl)yEl.value=Math.round(item.y);
     } 
 }
+let _wheelBuildTimer=null, _wheelSaveTimer=null;
 function onWheel(e){ 
     if(!e.ctrlKey)return;e.preventDefault();const p=getCoords(e);const rList=getRenderList(); 
     for(let i=rList.length-1;i>=0;i--){ 
         const entry=rList[i]; 
-        if(entry.type==='text'){const row=entry.item;if(hitTestRow(row,p.x,p.y)){const f=e.deltaY<0?1.05:0.95;row.size=Math.max(10,Math.min(800,Math.round(row.size*f)));row.x=p.x-(p.x-row.x)*f;row.y=p.y-(p.y-row.y)*f;buildSidebar();requestRender();saveHistory();return}} 
-        else if(entry.type==='shape'){const s=entry.item;if(hitTestShape(s,p.x,p.y)){const f=e.deltaY<0?1.05:0.95;s.w=Math.round(s.w*f);s.h=Math.round(s.h*f);s.x=p.x-(p.x-s.x)*f;s.y=p.y-(p.y-s.y)*f;buildSidebar();requestRender();saveHistory();return}} 
-        else if(entry.type==='char'){const c=entry.item;const b=getCharBounds(c);if(p.x>=b.x&&p.x<=b.x+b.w&&p.y>=b.y&&p.y<=b.y+b.h){const f=e.deltaY<0?1.05:0.95;c.w=Math.round(c.w*f);c.h=Math.round(c.h*f);c.x=p.x-(p.x-c.x)*f;c.y=p.y-(p.y-c.y)*f;buildSidebar();requestRender();saveHistory();return}} 
+        if(entry.type==='text'){const row=entry.item;if(hitTestRow(row,p.x,p.y)){const f=e.deltaY<0?1.05:0.95;row.size=Math.max(10,Math.min(800,Math.round(row.size*f)));row.x=p.x-(p.x-row.x)*f;row.y=p.y-(p.y-row.y)*f;requestRender();clearTimeout(_wheelBuildTimer);_wheelBuildTimer=setTimeout(()=>buildSidebar(),120);clearTimeout(_wheelSaveTimer);_wheelSaveTimer=setTimeout(()=>saveHistory(),300);return}} 
+        else if(entry.type==='shape'){const s=entry.item;if(hitTestShape(s,p.x,p.y)){const f=e.deltaY<0?1.05:0.95;s.w=Math.round(s.w*f);s.h=Math.round(s.h*f);s.x=p.x-(p.x-s.x)*f;s.y=p.y-(p.y-s.y)*f;requestRender();clearTimeout(_wheelBuildTimer);_wheelBuildTimer=setTimeout(()=>buildSidebar(),120);clearTimeout(_wheelSaveTimer);_wheelSaveTimer=setTimeout(()=>saveHistory(),300);return}} 
+        else if(entry.type==='char'){const c=entry.item;const b=getCharBounds(c);if(p.x>=b.x&&p.x<=b.x+b.w&&p.y>=b.y&&p.y<=b.y+b.h){const f=e.deltaY<0?1.05:0.95;c.w=Math.round(c.w*f);c.h=Math.round(c.h*f);c.x=p.x-(p.x-c.x)*f;c.y=p.y-(p.y-c.y)*f;requestRender();clearTimeout(_wheelBuildTimer);_wheelBuildTimer=setTimeout(()=>buildSidebar(),120);clearTimeout(_wheelSaveTimer);_wheelSaveTimer=setTimeout(()=>saveHistory(),300);return}} 
     } 
 }
 
@@ -1576,9 +1835,9 @@ window.onload=async ()=>{
     try{ const savedFavs = localStorage.getItem('my_thumb_fav_fonts'); if(savedFavs) favFonts = JSON.parse(savedFavs); }catch(e){}
     try{ const savedPc = localStorage.getItem('my_thumb_pc_fonts'); if(savedPc) { const pcf = JSON.parse(savedPc); pcf.forEach(f => { if(!availableFonts.find(a=>a.name===f.name)) availableFonts.push(f); }); } }catch(e){}
     try{ const savedStyles=localStorage.getItem('my_thumb_styles'); if(savedStyles) userStyles = JSON.parse(savedStyles); }catch(e){}
+    try{ const sp=localStorage.getItem('my_thumb_palette'); if(sp) savedPalette=JSON.parse(sp); }catch(e){}
     bindGlobalEvents();
     let loaded=false;
-    try { const bk = localStorage.getItem('my_thumb_autobackup'); if(bk) { const d = JSON.parse(bk); if((d.rows && d.rows.length>0) || (d.chars && d.chars.length>0) || (d.shapes && d.shapes.length>0)) { if(confirm('自動バックアップを復元しますか？')){ processLoadedData(d); loaded = true; } else { localStorage.removeItem('my_thumb_autobackup'); } } } } catch(e) {}
     if(!loaded){ try{const savedStr=localStorage.getItem('my_thumbnail_default');if(savedStr){processLoadedData(JSON.parse(savedStr));loaded=true;}}catch(e){} }
     if(!loaded&&DEFAULT_PRESET){processLoadedData(DEFAULT_PRESET);loaded=true;}
     if(!loaded){buildSidebar();requestRender();saveHistory();}
