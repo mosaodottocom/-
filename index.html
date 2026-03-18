@@ -36,7 +36,7 @@ main{display:flex;flex:1;overflow:hidden}
 .sec:not(.collapsed) .sec-h { border-bottom: 1px solid var(--bd); background: rgba(0,0,0,0.15); }
 .sec-h:hover{background:rgba(255,255,255,0.04);} 
 
-.sec-title{flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-right:8px;} 
+.sec-title{flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-right:8px;}
 .sec-arrow{font-size:18px;color:var(--muted);transition:transform .2s;margin-left:8px;line-height:1;}
 .sec.collapsed .sec-arrow{transform:rotate(-90deg)} .sec.collapsed .sec-b{display:none} .sec-b{padding:14px;display:flex;flex-direction:column;gap:12px}
 
@@ -768,7 +768,8 @@ function openStyleModal(rowId) {
 function saveUserStyles(){ localStorage.setItem('my_thumb_styles', JSON.stringify(userStyles)); }
 
 function generateFontCustomSelect(rowId, selectedFont){
-    let html=`<div class="custom-select" data-id="${rowId}"><div class="custom-select-trigger" style="font-family:${selectedFont}"><span>サムネ工房</span></div><div class="custom-options">`;
+    const selectedLabel = availableFonts.find(f=>f.name===selectedFont)?.label || selectedFont.replace(/^'|'$/g,'') || 'フォント';
+    let html=`<div class="custom-select" data-id="${rowId}"><div class="custom-select-trigger" style="font-family:${selectedFont}"><span>${selectedLabel}</span></div><div class="custom-options">`;
 
     let sorted = [...availableFonts].sort((a,b)=>{
         let aF = favFonts.includes(a.name)?1:0;
