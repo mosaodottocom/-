@@ -113,11 +113,7 @@ vec3 rgb=color.rgb;if(halfSign>0.0)alpha=smoothstep(0.0,.3,cos(theta));if(halfSi
   const scene = document.querySelector('.fixed-scene');
   const hero = document.querySelector('.hero');
   const hint = document.querySelector('.hint');
-  const glyphs = [...document.querySelectorAll('.glyph')];
-  const paths = [...document.querySelectorAll('.ink-script path')];
-  const pathLengths = paths.map(p => p.getTotalLength());
-  const totalLength = pathLengths.reduce((a, b) => a + b, 0);
-  paths.forEach((p, i) => { p.style.strokeDasharray = pathLengths[i]; });
+  const heading = document.querySelector('.heading');
 
   const renderers = [];
   let loaded = false, failed = false, w = innerWidth, h = innerHeight, current = 0, last = 0, startTime = null,
@@ -203,16 +199,10 @@ vec3 rgb=color.rgb;if(halfSign>0.0)alpha=smoothstep(0.0,.3,cos(theta));if(halfSi
     const elapsed = startTime === null ? 0 : (now - startTime) / 1000;
     const opening = reduce.matches || !introRunning ? 0 : Math.pow(1 - Math.min(1, elapsed / 2.6), 4);
     if (elapsed >= 2.6) introRunning = false;
-    const textProgress = Math.min(1, current * 1.5);
-    glyphs.forEach((el, i) => {
-      const p = Math.max(0, Math.min(1, (textProgress - i * .025) / .925)), ease = Math.pow(p, 4);
-      el.style.transform = 'translateY(' + (-400 * ease) + '%)'; el.style.opacity = 1 - ease;
-    });
-    let erased = totalLength * Math.min(textProgress * 1.25, 1), past = 0;
-    paths.forEach((p, i) => {
-      const amount = Math.min(Math.max(erased - past, 0), pathLengths[i]);
-      p.style.strokeDashoffset = -amount; p.style.opacity = amount >= pathLengths[i] - 1 ? '0' : '1'; past += pathLengths[i];
-    });
+    // Heading (with the eyes, thumbs-up and script) shrinks into the centre, accelerating as it goes.
+    const textProgress = Math.min(1, current * 1.6), shrink = Math.pow(textProgress, 2.6);
+    heading.style.transform = 'scale(' + Math.max(0, 1 - shrink) + ')';
+    heading.style.opacity = 1 - Math.pow(textProgress, 5);
     hint.style.opacity = current > .02 ? '0' : '1';
     if (loaded && !failed) { try { for (const r of renderers) r.render(current, opening, skew); } catch (e) { fail(e); } }
   }
