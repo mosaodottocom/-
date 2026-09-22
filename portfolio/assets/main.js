@@ -106,9 +106,9 @@ pos.z-=.24*radius; float dist=7.5-pos.z;gl_Position=vec4(pos.x*f/(viewport.x/vie
 void main(){float pi=3.14159265359;float theta=(vUv.x-.5)*2.0*pi;if(cos(theta)*halfSign<0.0)discard;
 float repeatX=(2.0*pi*.7*(viewport.x/viewport.y))/(10.0*(.4*(16.0/9.0)/.98));float sequence=(vUv.x-.5)*repeatX+.85-progress*3.0+intro;
 if(sequence<0.0||sequence>1.0)discard;float slot=fract(sequence*10.0);if(slot<.01||slot>.99)discard;
-float index=min(floor(sequence*10.0),9.0);float imageIndex=index<.5?8.0:index-1.0;float sprite=8.0-imageIndex;vec2 local=(vec2((slot-.01)/.98,vUv.y)-.5)/1.01+.5;
+float index=min(floor(sequence*10.0),9.0);float imageIndex=index<.5?8.0:index-1.0;float sprite=8.0-imageIndex;vec2 local=(vec2((slot-.01)/.98,vUv.y)-.5)/1.01+.5;if(halfSign<0.0)local.x=1.0-local.x;
 vec2 sampleUv=(local+vec2(mod(sprite,3.0),2.0-floor(sprite/3.0)))/3.0;vec4 color=texture2D(atlas,sampleUv);float alpha=1.0;
-if(halfSign<0.0)alpha=smoothstep(0.0,.04,vUv.x)*(1.0-smoothstep(.96,1.0,vUv.x));gl_FragColor=vec4(color.rgb,alpha);}`;
+vec3 rgb=color.rgb;if(halfSign>0.0)alpha=smoothstep(0.0,.3,cos(theta));if(halfSign<0.0){alpha=smoothstep(0.0,.04,vUv.x)*(1.0-smoothstep(.96,1.0,vUv.x));rgb=mix(rgb,vec3(.969),.55);}gl_FragColor=vec4(rgb,alpha);}`;
 
   const scene = document.querySelector('.fixed-scene');
   const hero = document.querySelector('.hero');
@@ -279,25 +279,6 @@ if(halfSign<0.0)alpha=smoothstep(0.0,.04,vUv.x)*(1.0-smoothstep(.96,1.0,vUv.x));
 })();
 
 /* =========================================================
-   Cursor follower (works)
-   ========================================================= */
-(() => {
-  const cursor = document.querySelector('.cursor');
-  if (!matchMedia('(hover:hover) and (pointer:fine)').matches) return;
-  let x = -200, y = -200, tx = -200, ty = -200, raf = 0;
-  const loop = () => {
-    x += (tx - x) * .2; y += (ty - y) * .2;
-    cursor.style.transform = `translate3d(${x}px,${y}px,0)`;
-    raf = Math.abs(tx - x) + Math.abs(ty - y) > .1 ? requestAnimationFrame(loop) : 0;
-  };
-  addEventListener('pointermove', e => { tx = e.clientX; ty = e.clientY; if (!raf) raf = requestAnimationFrame(loop); }, { passive: true });
-  document.querySelectorAll('.work-link').forEach(el => {
-    el.addEventListener('pointerenter', () => cursor.classList.add('on'));
-    el.addEventListener('pointerleave', () => cursor.classList.remove('on'));
-  });
-})();
-
-/* =========================================================
    Menu & lightbox
    ========================================================= */
 (() => {
@@ -309,7 +290,6 @@ if(halfSign<0.0)alpha=smoothstep(0.0,.04,vUv.x)*(1.0-smoothstep(.96,1.0,vUv.x));
 
   const lb = document.querySelector('.lightbox'), img = lb.querySelector('.lb-img');
   const $ = s => lb.querySelector(s);
-  const cursor = document.querySelector('.cursor');
   let index = 0;
   const visible = () => [...document.querySelectorAll('.work:not(.is-hidden) .work-link')].map(b => +b.dataset.index);
   function show(i) {
@@ -324,7 +304,7 @@ if(halfSign<0.0)alpha=smoothstep(0.0,.04,vUv.x)*(1.0-smoothstep(.96,1.0,vUv.x));
   }
   const step = d => { const v = visible(), p = v.indexOf(index); show(v[(p + d + v.length) % v.length]); };
   document.querySelectorAll('.work-link').forEach(b => b.addEventListener('click', () => {
-    show(+b.dataset.index); cursor.classList.remove('on');
+    show(+b.dataset.index);
     document.body.classList.add('locked'); lb.showModal();
   }));
   $('.lb-prev').onclick = () => step(-1);
