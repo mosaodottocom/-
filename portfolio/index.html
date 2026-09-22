@@ -10,6 +10,8 @@
 <meta property="og:type" content="website">
 <meta property="og:image" content="assets/works/01-ijl2026-playoff.webp">
 <meta name="theme-color" content="#f7f7f7">
+<link rel="icon" href="assets/img/icon.png">
+<link rel="apple-touch-icon" href="assets/img/icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -21,7 +23,7 @@
 <a class="skip" href="#works">作品へスキップ</a>
 
 <header class="site-header">
-  <a class="brand" href="#top" aria-label="MIZUKI トップへ"><b>mz</b><strong>MIZUKI<span> GRAPHIC DESIGN</span></strong></a>
+  <a class="brand" href="#top" aria-label="MIZUKI トップへ"><img class="brand-icon" src="assets/img/icon.png" alt="" width="400" height="400"><strong>MIZUKI<span> GRAPHIC DESIGN</span></strong></a>
   <nav class="nav" aria-label="メイン">
     <a href="#works">Works</a><a href="#services">Services</a><a href="#about">About</a><a href="#contact">Contact</a>
   </nav>
@@ -63,12 +65,13 @@
   <section class="works" id="works" aria-labelledby="works-title">
     <div class="section-head">
       <p class="eyebrow reveal"><span>01</span>Selected Works</p>
-      <h2 id="works-title" class="display reveal">Works<sup>(05)</sup></h2>
+      <h2 id="works-title" class="display reveal">Works<sup>(09)</sup></h2>
       <div class="filters reveal" role="group" aria-label="カテゴリで絞り込み">
         <button class="chip is-active" data-filter="all" aria-pressed="true">All</button>
         <button class="chip" data-filter="kv" aria-pressed="false">Key Visual</button>
         <button class="chip" data-filter="gameday" aria-pressed="false">Gameday</button>
         <button class="chip" data-filter="sns" aria-pressed="false">SNS</button>
+        <button class="chip" data-filter="thumb" aria-pressed="false">Thumbnail</button>
       </div>
     </div>
 
@@ -103,13 +106,37 @@
           <span class="meta"><span class="no">05</span><span class="title">Happy Birthday Wafu</span><span class="tags">SNS Graphic</span><span class="year">2026</span></span>
         </button>
       </li>
+    <li class="work w6" data-cat="kv">
+        <button class="work-link" data-index="5" aria-label="EX:CEED 天地開闢 The Genesis の詳細を見る">
+          <span class="thumb"><img src="assets/works/06-exceed-genesis.webp" alt="EX:CEED 天地開闢 The Genesis キービジュアル。赤一色で染めたキャラクターと筆文字風タイトル" width="1200" height="675" loading="lazy"></span>
+          <span class="meta"><span class="no">06</span><span class="title">EX:CEED — The Genesis</span><span class="tags">Key Visual</span><span class="year">2026</span></span>
+        </button>
+      </li>
+      <li class="work w7" data-cat="kv sns">
+        <button class="work-link" data-index="6" aria-label="CHEEKY CUSTOM の詳細を見る">
+          <span class="thumb"><img src="assets/works/07-cheeky-custom.webp" alt="CHEEKY CUSTOM 告知ビジュアル。赤いキャラクターとぷっくりしたロゴ" width="1920" height="1080" loading="lazy"></span>
+          <span class="meta"><span class="no">07</span><span class="title">Cheeky Custom</span><span class="tags">Key Visual / SNS</span><span class="year">2025</span></span>
+        </button>
+      </li>
+      <li class="work w8" data-cat="kv">
+        <button class="work-link" data-index="7" aria-label="APEX Legends Creator Tournament Series の詳細を見る">
+          <span class="thumb"><img src="assets/works/08-apex-creator-tournament.webp" alt="APEX LEGENDS CREATOR TOURNAMENT SERIES ビジュアル。黒・白・赤のグラフィック" width="1920" height="1080" loading="lazy"></span>
+          <span class="meta"><span class="no">08</span><span class="title">Apex Legends Creator Tournament</span><span class="tags">Key Visual</span><span class="year">2026</span></span>
+        </button>
+      </li>
+      <li class="work w9" data-cat="thumb">
+        <button class="work-link" data-index="8" aria-label="もう普通にAPEXすんの良くね？ の詳細を見る">
+          <span class="thumb"><img src="assets/works/09-apex-thumbnail.webp" alt="「もう普通にAPEXすんの良くね？」動画サムネイル。キャラクターと極太の縦組みタイポ" width="1920" height="1080" loading="lazy"></span>
+          <span class="meta"><span class="no">09</span><span class="title">もう普通にAPEXすんの良くね？</span><span class="tags">Thumbnail</span><span class="year">2026</span></span>
+        </button>
+      </li>
     </ul>
   </section>
 
   <!-- ============ MARQUEE ============ -->
   <div class="marquee" aria-hidden="true">
     <div class="marquee-track">
-      <span>KEY VISUAL ✳ GAMEDAY ✳ SNS GRAPHIC ✳ ESPORTS ✳ TYPOGRAPHY ✳ RETOUCH ✳&nbsp;</span><span>KEY VISUAL ✳ GAMEDAY ✳ SNS GRAPHIC ✳ ESPORTS ✳ TYPOGRAPHY ✳ RETOUCH ✳&nbsp;</span>
+      <span>KEY VISUAL ✳ GAMEDAY ✳ SNS GRAPHIC ✳ THUMBNAIL ✳ ESPORTS ✳ TYPOGRAPHY ✳&nbsp;</span><span>KEY VISUAL ✳ GAMEDAY ✳ SNS GRAPHIC ✳ THUMBNAIL ✳ ESPORTS ✳ TYPOGRAPHY ✳&nbsp;</span>
     </div>
   </div>
 
@@ -144,8 +171,9 @@
   <!-- ============ ABOUT ============ -->
   <section class="about" id="about" aria-labelledby="about-title">
     <div class="about-visual reveal">
-      <span class="about-mark" aria-hidden="true">mz</span>
+      <img class="about-icon" src="assets/img/icon.png" alt="みずきのアイコンイラスト" width="400" height="400">
       <img class="about-eyes" src="assets/img/eyes.svg" alt="" aria-hidden="true">
+      <span class="about-hi">Hi, I’m Mizuki!</span>
     </div>
     <div class="about-text">
       <p class="eyebrow reveal"><span>04</span>About</p>
@@ -201,7 +229,7 @@
   <div class="lb-inner">
     <figure class="lb-figure"><img class="lb-img" src="" alt=""></figure>
     <div class="lb-info">
-      <p class="lb-count"><span class="lb-no">01</span> / 05</p>
+      <p class="lb-count"><span class="lb-no">01</span> / <span class="lb-total">09</span></p>
       <h3 id="lb-title" class="lb-title"></h3>
       <dl class="lb-meta">
         <div><dt>Client</dt><dd class="lb-client"></dd></div>

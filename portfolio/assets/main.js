@@ -48,6 +48,42 @@ const WORKS = [
     role: 'Graphic Design',
     year: '2026',
     desc: '所属メンバーの誕生日を祝うSNS用ビジュアル。ギンガムチェック、リボン、風船、ウィンドウUIのモチーフを組み合わせ、チームカラーのブルーを軸にポップで柔らかなトーンにまとめました。'
+  },
+  {
+    title: 'EX:CEED — The Genesis',
+    src: 'assets/works/06-exceed-genesis.webp',
+    client: 'EX:CEED',
+    cat: 'Key Visual',
+    role: 'Key Visual / Title Logo',
+    year: '2026',
+    desc: 'Overwatchのスクリム団体「EX:CEED」のキービジュアル「天地開闢 — The Genesis」。画面全体を赤のモノトーンで統一し、背を向けたヒーローのシルエットとエッジの効いた筆文字風タイトルで、始まりの緊張感と力強さを表現しました。'
+  },
+  {
+    title: 'Cheeky Custom',
+    src: 'assets/works/07-cheeky-custom.webp',
+    client: 'Cheeky Custom',
+    cat: 'Key Visual / SNS',
+    role: 'Key Visual / Logo Typography',
+    year: '2025',
+    desc: 'カスタムマッチ企画「CHEEKY CUSTOM」の告知ビジュアル。ぷっくりとした立体ロゴとチェック柄、赤×水色の配色で、キャラクターのやんちゃな魅力をそのままポップなトーンに落とし込みました。開催日をリボン帯で大きく見せ、SNSで一目で伝わる構成に。'
+  },
+  {
+    title: 'Apex Legends Creator Tournament Series',
+    src: 'assets/works/08-apex-creator-tournament.webp',
+    client: 'Apex Legends Creator Tournament',
+    cat: 'Key Visual',
+    role: 'Key Visual / Typography',
+    year: '2026',
+    desc: 'Apex Legends のクリエイター大会シリーズのビジュアル。黒・白・赤の3色に絞り、大胆にトリミングしたマスコットと荒々しいブラシタイポで “PLAY BIG, PLAY LOUD” の勢いを表現。縦組みのカタカナや周囲のテキストでストリート感を加えています。'
+  },
+  {
+    title: 'もう普通にAPEXすんの良くね？',
+    src: 'assets/works/09-apex-thumbnail.webp',
+    client: 'YouTube 動画サムネイル',
+    cat: 'Thumbnail',
+    role: 'Thumbnail Design',
+    year: '2026',
+    desc: '配信・動画用のサムネイル。「良くね？」を画面いっぱいの極太明朝で組み、縦組みのコピーと合わせて小さな表示サイズでも一瞬で読めるように設計。規制線テープや留置所風の背景でキャラクターのシュールさを引き立てています。'
   }
 ];
 
@@ -281,6 +317,7 @@ if(halfSign<0.0)alpha=smoothstep(0.0,.04,vUv.x)*(1.0-smoothstep(.96,1.0,vUv.x));
     img.classList.remove('swap'); void img.offsetWidth; img.classList.add('swap');
     img.src = wk.src; img.alt = wk.title;
     $('.lb-no').textContent = String(i + 1).padStart(2, '0');
+    $('.lb-total').textContent = String(WORKS.length).padStart(2, '0');
     $('.lb-title').textContent = wk.title; $('.lb-client').textContent = wk.client;
     $('.lb-cat').textContent = wk.cat; $('.lb-role').textContent = wk.role;
     $('.lb-year').textContent = wk.year; $('.lb-desc').textContent = wk.desc;
