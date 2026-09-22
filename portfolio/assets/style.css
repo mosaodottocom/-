@@ -1,5 +1,5 @@
 /* =========================================================
-   AO DESIGN — Portfolio
+   MIZUKI — Portfolio
    Palette: blue #0bbbdc / ink #202020 / paper #f7f7f7
    Type: Unbounded (display) + Noto Sans JP (text)
    ========================================================= */
@@ -168,6 +168,7 @@ section{position:relative}
 .about-mark{font-family:Arial,sans-serif;font-weight:700;font-size:clamp(120px,17vw,320px);letter-spacing:-.13em;color:#fff;line-height:1;position:relative;margin-left:-.13em}
 .about-eyes{position:absolute;width:30%;right:12%;top:14%;transform:rotate(-15deg)}
 .about-text>p:not(.eyebrow){font-size:clamp(14px,1.05vw,17px);max-width:36em}
+.about-jp{display:block;margin-top:.5em;font-family:var(--jp);font-weight:700;font-size:.2em;letter-spacing:.3em;color:var(--blue)}
 .about-role{font-family:var(--display);font-size:13px!important;color:var(--blue);letter-spacing:.04em;margin:2.6vh 0 3vh}
 .about-list{margin:5vh 0 0;border-top:1px solid var(--ink)}
 .about-list div{display:grid;grid-template-columns:9em 1fr;padding:14px 0;border-bottom:1px solid var(--line);font-size:14px}
@@ -188,7 +189,7 @@ section{position:relative}
 .socials a{display:inline-block;border:1px solid #ffffff55;border-radius:40px;padding:10px 20px;font-family:var(--display);font-size:12px;transition:background .3s,color .3s}
 .socials a:hover{background:#fff;color:var(--ink)}
 .site-footer{background:var(--ink);color:#fff;padding:0 var(--gutter) 30px;overflow:hidden}
-.foot-mark{display:block;font-family:var(--display);font-weight:600;font-size:13.6vw;line-height:.8;letter-spacing:-.05em;color:var(--blue);white-space:nowrap;margin:0 -.04em 3vh}
+.foot-mark{display:block;font-family:var(--display);font-weight:600;font-size:22vw;line-height:.8;letter-spacing:-.05em;color:var(--blue);white-space:nowrap;margin:0 -.04em 3vh}
 .foot-row{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;font-family:Arial,sans-serif;font-size:11px;letter-spacing:.08em;border-top:1px solid #ffffff30;padding-top:20px}
 .foot-row small{font-size:inherit;color:#aaa}
 
@@ -244,7 +245,7 @@ body.locked{overflow:hidden}
 @media (max-width:700px){
   :root{--gutter:6%}
   .site-header{top:27px}
-  .brand{gap:10px;font-size:12px;letter-spacing:.08em}.brand b{font-size:33px}
+  .brand{gap:10px;font-size:12px;letter-spacing:.08em}.brand strong span{display:none}.brand b{font-size:33px}
   .menu-toggle{padding:0 15px;gap:12px;min-height:40px;font-size:11px}.menu-toggle i{font-size:27px}
   .heading-position{padding-bottom:15vh}.heading{font-size:10.4vw}
   .ink-script{width:43vw}
