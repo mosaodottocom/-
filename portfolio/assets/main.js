@@ -207,8 +207,8 @@ vec3 rgb=color.rgb;if(halfSign>0.0)alpha=smoothstep(0.0,.3,cos(theta));if(halfSi
     const textProgress = Math.min(1, current * 1.6), shrink = Math.pow(textProgress, 2.6);
     heading.style.transform = 'scale(' + Math.max(0, 1 - shrink) + ')';
     heading.style.opacity = 1 - Math.pow(textProgress, 5);
-    // The script is erased stroke by stroke, like before.
-    let erased = totalLength * Math.min(textProgress * 1.25, 1), past = 0;
+    // The script is erased stroke by stroke in step with the shrink, finishing as the heading vanishes.
+    let erased = totalLength * textProgress, past = 0;
     paths.forEach((p, i) => {
       const amount = Math.min(Math.max(erased - past, 0), pathLengths[i]);
       p.style.strokeDashoffset = -amount; p.style.opacity = amount >= pathLengths[i] - 1 ? '0' : '1'; past += pathLengths[i];
