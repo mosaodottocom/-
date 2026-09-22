@@ -114,6 +114,10 @@ vec3 rgb=color.rgb;if(halfSign>0.0)alpha=smoothstep(0.0,.3,cos(theta));if(halfSi
   const hero = document.querySelector('.hero');
   const hint = document.querySelector('.hint');
   const heading = document.querySelector('.heading');
+  const paths = [...document.querySelectorAll('.ink-script path')];
+  const pathLengths = paths.map(p => p.getTotalLength());
+  const totalLength = pathLengths.reduce((a, b) => a + b, 0);
+  paths.forEach((p, i) => { p.style.strokeDasharray = pathLengths[i]; });
 
   const renderers = [];
   let loaded = false, failed = false, w = innerWidth, h = innerHeight, current = 0, last = 0, startTime = null,
@@ -203,6 +207,12 @@ vec3 rgb=color.rgb;if(halfSign>0.0)alpha=smoothstep(0.0,.3,cos(theta));if(halfSi
     const textProgress = Math.min(1, current * 1.6), shrink = Math.pow(textProgress, 2.6);
     heading.style.transform = 'scale(' + Math.max(0, 1 - shrink) + ')';
     heading.style.opacity = 1 - Math.pow(textProgress, 5);
+    // The script is erased stroke by stroke, like before.
+    let erased = totalLength * Math.min(textProgress * 1.25, 1), past = 0;
+    paths.forEach((p, i) => {
+      const amount = Math.min(Math.max(erased - past, 0), pathLengths[i]);
+      p.style.strokeDashoffset = -amount; p.style.opacity = amount >= pathLengths[i] - 1 ? '0' : '1'; past += pathLengths[i];
+    });
     hint.style.opacity = current > .02 ? '0' : '1';
     if (loaded && !failed) { try { for (const r of renderers) r.render(current, opening, skew); } catch (e) { fail(e); } }
   }
